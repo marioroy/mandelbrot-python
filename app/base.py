@@ -97,7 +97,7 @@ class Base(object):
 
         # Coloring using fixed values.
         if self.color_scheme == 1:
-            # Bright qualitative colour scheme
+            # Bright qualitative colour scheme, courtesy of Paul Tol.
             # https://personal.sron.nl/~pault/
             p = np.empty((8,3), dtype=np.ctypeslib.ctypes.c_int16)
             p[0], p[p.shape[0] - 1] = (0,0,0), (8,8,8)

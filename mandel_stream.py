@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 Explore the Mandelbrot Set on the CPU using sockets for IPC.
+
+On Linux, this script runs faster due to lesser overhead compared to
+mandel_queue.py. Messages are less than 64 bytes and seem to work without
+involving locks. Overall about 0.5 seconds reduction for IPC alone when
+running an auto-zoom session. Though I'm pleasantly delighted for
+SimpleQueue to be nearly as fast.
 """
 
 import math

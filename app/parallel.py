@@ -31,6 +31,7 @@ else:
     import threading 
     import queue 
     Barrier = threading.Barrier
+    # Prefer SimpleQueue for lesser overhead. Python 3.7 onwards.
     Queue = queue.SimpleQueue if hasattr(queue, 'SimpleQueue') else queue.Queue
     Thread = threading.Thread
 

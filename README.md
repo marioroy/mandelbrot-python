@@ -23,6 +23,10 @@ $ pip3 install pycuda
 
 **Python Scripts**
 
+Rendering on the GPU requires double-precision support on the device.
+On FreeBSD, install pocl for OpenCL on the CPU. It works quite well.
+On Windows, run vcvars.bat first (Visual Studio) for CUDA/OpenCL.
+
 ```text
 mandel_queue.py   - Run parallel using a queue for IPC
 mandel_stream.py  - Run parallel using a socket for IPC
@@ -164,8 +168,8 @@ and renders the image.
 
 # Acknowledgements
 
-Bright qualitative colour scheme, distinct for all people.
-Coloring using a slight modification of Bernstein polynomials.
+Bright qualitative colour scheme (courtesy of Paul Tol). I also tried
+coloring using a slight modification of Bernstein polynomials.
 
 * https://personal.sron.nl/~pault/
 

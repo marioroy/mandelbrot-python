@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Explore the Mandelbrot Set on the CPU using queues for IPC.
+
+Preferably use Python 3.7 or later for better performance.
+SimpleQueue has noticeably lesser overhead compared to Queue.
+See app/parallel.py.
 """
 
 import math
