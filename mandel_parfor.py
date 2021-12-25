@@ -2,6 +2,18 @@
 # -*- coding: utf-8 -*-
 """
 Explore the Mandelbrot Set on the CPU using Numba's parfor loop.
+
+Until set_parallel_chunksize() is added to Numba, this script may run
+slower than mandel_queue.py and mandel_stream.py. On the other hand,
+this script is ready for set_parallel_chunksize() when made available.
+See app/mandel_parfor.py.
+
+Results taken from an 1920x1080 auto-zoom session on a 32-core box.
+  Numba 0.54.1     10.6 seconds  slowest of the bunch
+  Numba autochunk   8.9 seconds  fastest of the bunch
+  mandel_ocl        9.5 seconds  OpenCL on the CPU
+  mandel_queue      9.5 seconds  SimpleQueue
+  mandel_stream     9.1 seconds  Socket
 """
 
 import math
