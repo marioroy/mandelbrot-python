@@ -16,9 +16,14 @@ be pleased to know that testing was done on FreeBSD, Linux, macOS,
 and Microsoft Windows.
 
 ```bash
+# optional packages if building numba from source
+$ pip3 install icc_rt intel_openmp tbb tbb4py
+```
+
+```bash
 $ pip3 install numba pygame
-$ pip3 install pyopencl
-$ pip3 install pycuda
+$ pip3 install pyopencl  # optional, for CPU/GPU
+$ pip3 install pycuda    # optional, for GPU
 ```
 
 **Python Scripts**
