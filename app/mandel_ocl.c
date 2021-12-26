@@ -2,14 +2,12 @@
 // OpenCL C code for computing the Mandelbrot Set on the CPU or GPU.
 // This requires double-precision capabilties on the device.
 //
-// Optimization flags (defined in ../mandel_ocl.py):
-//   MIXED_PREC1  short-curcuit sooner using integers, it helps a little
+// Optimization flags defined in ../mandel_ocl.py:
+//   MIXED_PREC1  integer comparison (just lo-bits sufficient)
 //     #if defined(MIXED_PREC1) || defined(MIXED_PREC2)
-//       if ( (zreal.x == sreal.x) && (zreal.y == sreal.y) &&
-//            (zimag.x == simag.x) && (zimag.y == simag.y) ) {
+//       if ( (zreal.x == sreal.x) && (zimag.x == simag.x) ) {
 //     #else
-//       if ( (zreal.d == sreal.d) &&
-//            (zimag.d == simag.d) ) {
+//       if ( (zreal.d == sreal.d) && (zimag.d == simag.d) ) {
 //     #endif
 //   MIXED_PREC2  includes MIXED_PREC1; single-precision addition (hi-bits)
 //     #if defined(MIXED_PREC2)
@@ -21,12 +19,12 @@
 //     #endif
 //
 // Depending on the GPU, mixed_prec=1 may run faster than 2.
-// But definitely try 2 for noticeably faster results.
-// GeForce 2070 RTX 1980x1080 auto-zoom results.
-//   mixed_prec=0 fma=0   ~ 19.0 seconds
-//   mixed_prec=1 fma=0   ~ 18.5 seconds
-//   mixed_prec=2 fma=0   ~ 15.0 seconds
-//   mixed_prec=2 fma=1   ~ 13.6 seconds
+// But definitely try 2 for possibly better results.
+// GeForce 2070 RTX 1280x720 auto-zoom (press x).
+//   mixed_prec=0 fma=0    9.4 seconds
+//   mixed_prec=1 fma=0    8.8 seconds
+//   mixed_prec=2 fma=0    7.5 seconds
+//   mixed_prec=2 fma=1    6.7 seconds
 //
 
 #pragma OPENCL EXTENSION cl_khr_byte_addressable_store: enable
@@ -193,13 +191,10 @@ uchar4 mandel1(
             // the number of iterations to test with it.
 
           #if defined(MIXED_PREC1) || defined(MIXED_PREC2)
-            if ( (zreal.x == sreal.x) && (zreal.y == sreal.y) &&
-                 (zimag.x == simag.x) && (zimag.y == simag.y) ) {
+            if ( (zreal.x == sreal.x) && (zimag.x == simag.x) ) {
           #else
-            if ( (zreal.d == sreal.d) &&
-                 (zimag.d == simag.d) ) {
+            if ( (zreal.d == sreal.d) && (zimag.d == simag.d) ) {
           #endif
-
                 return INSIDE_COLOR1;
             }
 
