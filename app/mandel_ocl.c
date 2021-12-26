@@ -3,9 +3,10 @@
 // This requires double-precision capabilties on the device.
 //
 // Optimization flags defined in ../mandel_ocl.py:
-//   MIXED_PREC1  integer comparison (just lo-bits sufficient)
+//   MIXED_PREC1  integer comparison; this may run faster depending on GPU
 //     #if defined(MIXED_PREC1) || defined(MIXED_PREC2)
-//       if ( (zreal.x == sreal.x) && (zimag.x == simag.x) ) {
+//       if ( (zreal.x == sreal.x) && (zreal.y == sreal.y) &&
+//            (zimag.x == simag.x) && (zimag.y == simag.y) ) {
 //     #else
 //       if ( (zreal.d == sreal.d) && (zimag.d == simag.d) ) {
 //     #endif
@@ -191,7 +192,8 @@ uchar4 mandel1(
             // the number of iterations to test with it.
 
           #if defined(MIXED_PREC1) || defined(MIXED_PREC2)
-            if ( (zreal.x == sreal.x) && (zimag.x == simag.x) ) {
+            if ( (zreal.x == sreal.x) && (zreal.y == sreal.y) &&
+                 (zimag.x == simag.x) && (zimag.y == simag.y) ) {
           #else
             if ( (zreal.d == sreal.d) && (zimag.d == simag.d) ) {
           #endif
