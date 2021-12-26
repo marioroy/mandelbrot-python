@@ -47,7 +47,7 @@ class Option(object):
         _opt(p, "--smooth-bench", "int", "select smooth bench [0,1]: 0")
 
         g = OptionGroup(p, "CPU Options")
-        _opt(g, "--threads", "string", "number of threads to use: auto")
+        _opt(g, "--num-threads", "string", "number of threads to use: auto")
         p.add_option_group(g)
 
         g = OptionGroup(p, "GPU Options")
@@ -58,7 +58,7 @@ class Option(object):
         p.set_defaults(
             width=800, height=500, center_x=-0.625, center_y=0.0, location=0,
             zoom_scale=0.95, num_samples=2, perf_level=25, color_scheme=1,
-            fast_zoom=1, smooth_bench=0, threads='auto', mixed_prec=0, fma=0 )
+            fast_zoom=1, smooth_bench=0, num_threads='auto', mixed_prec=0, fma=0 )
 
         # optionally, override defaults from a config file
         self.__handle_config(p)
@@ -89,9 +89,9 @@ class Option(object):
         self.center_y = opt.center_y
         self.zoom_scale = opt.zoom_scale
 
-        if opt.threads != 'auto':
-            os.environ['NUM_THREADS'] = str(max(1, int(opt.threads)))
-            self.num_threads = max(1, int(opt.threads))
+        if opt.num_threads != 'auto':
+            os.environ['NUM_THREADS'] = str(max(1, int(opt.num_threads)))
+            self.num_threads = max(1, int(opt.num_threads))
         else:
             self.num_threads = max(1, int(os.getenv('NUM_THREADS') or os.cpu_count() - 1))
 
@@ -150,7 +150,7 @@ class Option(object):
             if config.has_option(section, key):
                 opt[key] = float(config.get(section, key))
 
-        for key in ('threads',):
+        for key in ('num_threads',):
             if config.has_option(section, key):
                 opt[key] = str(config.get(section, key))
 
