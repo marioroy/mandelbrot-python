@@ -75,6 +75,7 @@ class App(WindowPygame):
         print("[{:>3}] color scheme {}".format(self.level, self.color_scheme))
 
         # Allocate OpenCL variables.
+        # FMA is determined by the FMA_ON or FMA_OFF switch.
         options = [
             '-D', 'FMA_ON' if self.fma and not self.is_cpu else 'FMA_OFF',
             '-D', 'RADIUS={}'.format(RADIUS),

@@ -1,7 +1,34 @@
 //
 // OpenCL C code for computing the Mandelbrot Set on the CPU or GPU.
-// For GPU, requires double-precision support to work.
+// This requires double-precision capabilties on the device.
 //
+// Optimization flags (defined in ../mandel_ocl.py):
+//   MIXED_PREC1  short-curcuit sooner using integers, it helps a little
+//     #if defined(MIXED_PREC1) || defined(MIXED_PREC2)
+//       if ( (zreal.x == sreal.x) && (zreal.y == sreal.y) &&
+//            (zimag.x == simag.x) && (zimag.y == simag.y) ) {
+//     #else
+//       if ( (zreal.d == sreal.d) &&
+//            (zimag.d == simag.d) ) {
+//     #endif
+//   MIXED_PREC2  includes MIXED_PREC1; single-precision addition (hi-bits)
+//     #if defined(MIXED_PREC2)
+//       a.i = (zreal_sqr.y & 0xc0000000) | ((zreal_sqr.y & 0x7ffffff) << 3);
+//       b.i = (zimag_sqr.y & 0xc0000000) | ((zimag_sqr.y & 0x7ffffff) << 3);
+//       if (a.f + b.f > ESCAPE_RADIUS_2) {
+//     #else
+//       if (zreal_sqr.d + zimag_sqr.d > ESCAPE_RADIUS_2) {
+//     #endif
+//
+// Depending on the GPU, mixed_prec=1 may run faster than 2.
+// But definitely try 2 for noticeably faster results.
+// GeForce 2070 RTX 1980x1080 auto-zoom results.
+//   mixed_prec=0 fma=0   ~ 19.0 seconds
+//   mixed_prec=1 fma=0   ~ 18.5 seconds
+//   mixed_prec=2 fma=0   ~ 15.0 seconds
+//   mixed_prec=2 fma=1   ~ 13.6 seconds
+//
+
 #pragma OPENCL EXTENSION cl_khr_byte_addressable_store: enable
 #pragma OPENCL FP_CONTRACT OFF  // fma ON-OFF
 

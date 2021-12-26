@@ -49,7 +49,8 @@ class App(WindowPygame):
 
         print("[{:>3}] color scheme {}".format(self.level, self.color_scheme))
 
-        # Allocate CUDA variables.
+        # Allocate CUDA variables. Here, I set -fmad to false.
+        # Instead, FMA is determined by the FMA_ON or FMA_OFF switch.
         options = [
             '-fmad=false', '-prec-div=true', '-prec-sqrt=true',
             '--compiler-options',
