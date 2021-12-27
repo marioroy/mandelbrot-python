@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Provides auto-selection of various classes for parallel processing.
+Provides auto-selection of various classes for multi-platform support.
 """
 
 __all__ = ['USE_FORK', 'Barrier', 'Queue', 'Thread']

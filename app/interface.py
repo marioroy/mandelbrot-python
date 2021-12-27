@@ -68,6 +68,7 @@ class WindowPygame(Base):
 
     def init(self):
 
+        # There's no sound or anything like that. Thus initializing display only.
         pg.display.init()
 
         self.window = pg.display.set_mode((self.width, self.height), flags=pg.DOUBLEBUF)
@@ -99,6 +100,7 @@ class WindowPygame(Base):
 
         self.display()
 
+        # Wait for an event so minimum CPU utilization when idled.
         while True:
             e = pg.event.wait()
             if e.type == pg.KEYDOWN:
@@ -122,6 +124,7 @@ class WindowPygame(Base):
 
         self.start_time = time.time()
 
+        # Update min and max values as well.
         step_x = 4 / self.zoom_scale / self.width
         self.min_x = -2 / self.zoom_scale + self.center_x
         self.max_x = step_x * self.width + self.min_x - step_x
@@ -131,6 +134,7 @@ class WindowPygame(Base):
         self.min_y += 1e-15 if self.center_y == 0.0 else 0.0 # account for artifact
         self.max_y = step_y * self.height + self.min_y - step_y
 
+        # Update iters which is a double value.
         self.iters = self.width / self.perf_win * 5.0 * \
             math.sqrt(math.pow(1/self.magf, self.level/math.pi))
 
@@ -418,7 +422,7 @@ class WindowPygame(Base):
 
         t = np.sum(buf)
 
-        # subtract alpha channel
+        # Subtract the alpha channel if present.
         if buf.shape[0] == self.height * self.width * 4:
             t -= 255 * self.height * self.width
 

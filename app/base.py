@@ -15,7 +15,6 @@ RADIUS = 16.0
 def create_gaussian_blur_1d_kernel(sigma):
     """
     Returns 1D convolution kernel for Gaussian blur in two dimensions.
-
     https://en.wikipedia.org/wiki/Gaussian_blur
     """
     # minimum standard deviation
@@ -76,7 +75,9 @@ class Base(object):
 
 
     def fill_linear(self, palette):
-
+        """
+        Fill the colors array using linear interpolation.
+        """
         num_colors = palette.shape[0]
         num_colors -= 1
 
@@ -94,7 +95,9 @@ class Base(object):
 
 
     def init_colors(self):
-
+        """
+        Pick some colors and fill the colors array.
+        """
         # Coloring using fixed values.
         if self.color_scheme == 1:
             # Bright qualitative colour scheme, courtesy of Paul Tol.
@@ -166,7 +169,10 @@ class Base(object):
 
 
     def init_offset(self):
-
+        """
+        Compute the real and imag AA offsets, used by mandelbrot2.
+        Store the offsets into an array.
+        """
         aafactor = self.num_samples
         aareach1 = int(aafactor / 2.0)
         aareach2 = aareach1 + 1 if (aafactor % 2) else aareach1
@@ -179,6 +185,7 @@ class Base(object):
         for xi in range(-aareach1, aareach2, 1):
             for yi in range(-aareach1, aareach2, 1):
                 if (xi | yi) == 0:
+                    # Mandelbrot1 renders the initial image.
                     continue
                 self.offset[i+0] = xi * aafactorinv
                 self.offset[i+1] = yi * aafactorinv

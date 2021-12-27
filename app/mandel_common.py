@@ -46,6 +46,7 @@ def get_color(colors, zreal_sqr, zimag_sqr, n):
 @njit('b1(u1[:], u1[:])', nogil=True)
 def check_colors(c1, c2):
 
+    # Return false if the colors are within tolerance.
     if abs(nb.types.i2(c2[0]) - c1[0]) > 8: return True
     if abs(nb.types.i2(c2[1]) - c1[1]) > 8: return True
     if abs(nb.types.i2(c2[2]) - c1[2]) > 8: return True
