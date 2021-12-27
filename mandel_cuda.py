@@ -16,9 +16,9 @@ from app.interface import WindowPygame
 
 if sys.platform != 'win32':
     cpath = os.getenv('CPATH') or ''
-    os.environ['CPATH'] = str(cpath) + ':/usr/local/cuda/include'
+    os.environ['CPATH'] = cpath + ':/usr/local/cuda/include'
     lpath = os.getenv('LIBRARY_PATH') or ''
-    os.environ['LIBRARY_PATH'] = str(lpath) + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
+    os.environ['LIBRARY_PATH'] = lpath + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
 
 filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_cuda.c').replace(' ', '\\ ')
 with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
