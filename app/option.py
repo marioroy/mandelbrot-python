@@ -50,6 +50,10 @@ class Option(object):
         _opt(g, "--num-threads", "string", "number of threads to use: auto")
         p.add_option_group(g)
 
+        g = OptionGroup(p, "CUDA Options")
+        _opt(g, "--compiler-bindir", "str", "directory in which the host C compiler resides")
+        p.add_option_group(g)
+
         g = OptionGroup(p, "GPU Options")
         _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2]: 0")
         _opt(g, "--fma", "int", "select fused-multiply-add flag [0,1]: 0")
@@ -58,7 +62,8 @@ class Option(object):
         p.set_defaults(
             width=800, height=500, center_x=-0.625, center_y=0.0, location=0,
             zoom_scale=0.95, num_samples=2, perf_level=25, color_scheme=1,
-            fast_zoom=1, smooth_bench=0, num_threads='auto', mixed_prec=0, fma=0 )
+            fast_zoom=1, smooth_bench=0, num_threads='auto', compiler_bindir='',
+            mixed_prec=0, fma=0 )
 
         # optionally, override defaults from a config file
         self.__handle_config(p)
@@ -88,6 +93,7 @@ class Option(object):
         self.center_x = opt.center_x
         self.center_y = opt.center_y
         self.zoom_scale = opt.zoom_scale
+        self.compiler_bindir = opt.compiler_bindir
 
         if opt.num_threads != 'auto':
             os.environ['NUM_THREADS'] = str(max(1, int(opt.num_threads)))
@@ -150,7 +156,7 @@ class Option(object):
             if config.has_option(section, key):
                 opt[key] = float(config.get(section, key))
 
-        for key in ('num_threads',):
+        for key in ('num_threads', 'compiler_bindir'):
             if config.has_option(section, key):
                 opt[key] = str(config.get(section, key))
 

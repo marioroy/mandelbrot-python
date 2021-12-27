@@ -82,6 +82,9 @@ Options:
   CPU Options:
     --num-threads=ARG  number of threads to use: auto
 
+  CUDA Options:
+    --compiler-bindir  directory in which the C compiler resides
+
   GPU Options:
     --mixed-prec=ARG   select mixed-precision flag [0,1,2]: 0
     --fma=ARG          select fused-multiply-add flag [0,1]: 0

@@ -14,6 +14,12 @@ from app.option import OPT
 from app.base import GRADIENT_LENGTH, RADIUS
 from app.interface import WindowPygame
 
+if sys.platform != 'win32':
+    cpath = os.getenv('CPATH') or ''
+    os.environ['CPATH'] = str(cpath) + ':/usr/local/cuda/include'
+    lpath = os.getenv('LIBRARY_PATH') or ''
+    os.environ['LIBRARY_PATH'] = str(lpath) + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
+
 filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_cuda.c').replace(' ', '\\ ')
 with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
 
@@ -59,6 +65,9 @@ class App(WindowPygame):
             '-DGRADIENT_LENGTH={}'.format(GRADIENT_LENGTH),
             '-DMATRIX_LENGTH={}'.format(self.gaussian_kernel.shape[0]),
             '-DMIXED_PREC{}'.format(self.mixed_prec) ]
+
+        if len(OPT.compiler_bindir) > 0:
+            options.extend(['--compiler-bindir', OPT.compiler_bindir])
 
         try:
             self.cuda_prg = SourceModule(KERNEL_SOURCE, options=options)
