@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Explore the Mandelbrot Set on the CPU or GPU using OpenCL.
+Explore the Mandelbrot Set on the CPU or GPU using PyOpenCL.
 """
 
 import io

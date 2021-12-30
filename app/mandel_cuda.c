@@ -21,7 +21,7 @@
 //
 // Depending on the GPU, mixed_prec=1 may run faster than 2.
 // But definitely try 2 for possibly better results.
-// GeForce 2070 RTX 1280x720 auto-zoom (press x).
+// NVIDIA GeForce RTX 2070 1280x720 auto-zoom (press x).
 //   mixed_prec=0 fma=0    9.0 seconds
 //   mixed_prec=1 fma=0    8.4 seconds
 //   mixed_prec=2 fma=0    7.1 seconds

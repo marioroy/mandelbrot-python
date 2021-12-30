@@ -54,7 +54,7 @@ class Option(object):
         _opt(g, "--compiler-bindir", "str", "directory in which the host C compiler resides")
         p.add_option_group(g)
 
-        g = OptionGroup(p, "GPU Options")
+        g = OptionGroup(p, "GPU Options (PyCUDA and PyOpenCL only)")
         _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2]: 0")
         _opt(g, "--fma", "int", "select fused-multiply-add flag [0,1]: 0")
         p.add_option_group(g)

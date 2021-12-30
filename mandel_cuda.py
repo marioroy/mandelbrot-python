@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Explore the Mandelbrot Set on the GPU using CUDA.
+Explore the Mandelbrot Set on the GPU using PyCUDA.
 """
 
 import io

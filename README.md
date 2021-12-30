@@ -36,8 +36,9 @@ On Windows, run ```vcvars.bat``` first (Visual Studio) for CUDA/OpenCL.
 mandel_queue.py   - Run parallel using a queue for IPC
 mandel_stream.py  - Run parallel using a socket for IPC
 mandel_parfor.py  - Run parallel using Numba's parfor loop
-mandel_ocl.py     - Run on the CPU or GPU using OpenCL
-mandel_cuda.py    - Run on the GPU using CUDA
+mandel_ocl.py     - Run on the CPU or GPU using PyOpenCL
+mandel_cuda.py    - Run on the GPU using PyCUDA
+mandel_kernel.py  - Run on the GPU using cuda.jit
 
 $ python3 mandel_queue.py -h
 $ python3 mandel_queue.py --shortcuts
@@ -85,7 +86,7 @@ Options:
   CUDA Options:
     --compiler-bindir  directory in which the C compiler resides
 
-  GPU Options:
+  GPU Options (PyCUDA and PyOPENCL only):
     --mixed-prec=ARG   select mixed-precision flag [0,1,2]: 0
     --fma=ARG          select fused-multiply-add flag [0,1]: 0
 ```
