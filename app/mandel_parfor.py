@@ -160,23 +160,23 @@ def unsharp_mask(src, dst, seq):
             blur_pixel = dst[y,x]
 
             # Compare in/out pixels, apply sharpening.
-            diff = nb.types.i2(norm_pixel[0]) - blur_pixel[0]
+            diff = nb.types.i2(nb.types.i2(norm_pixel[0]) - blur_pixel[0])
             if abs(diff) > threshold:
                 # Add the difference to the original pixel.
-                r = min(255, max(0, diff * percent + norm_pixel[0]))
+                r = min(255, max(0, int(diff * percent + norm_pixel[0])))
             else:
                 # New pixel is the same as the original pixel.
                 r = norm_pixel[0]
 
-            diff = nb.types.i2(norm_pixel[1]) - blur_pixel[1]
+            diff = nb.types.i2(nb.types.i2(norm_pixel[1]) - blur_pixel[1])
             if abs(diff) > threshold:
-                g = min(255, max(0, diff * percent + norm_pixel[1]))
+                g = min(255, max(0, int(diff * percent + norm_pixel[1])))
             else:
                 g = norm_pixel[1]
 
-            diff = nb.types.i2(norm_pixel[2]) - blur_pixel[2]
+            diff = nb.types.i2(nb.types.i2(norm_pixel[2]) - blur_pixel[2])
             if abs(diff) > threshold:
-                b = min(255, max(0, diff * percent + norm_pixel[2]))
+                b = min(255, max(0, int(diff * percent + norm_pixel[2])))
             else:
                 b = norm_pixel[2]
 
