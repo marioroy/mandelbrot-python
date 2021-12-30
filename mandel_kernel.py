@@ -20,6 +20,7 @@ if sys.platform != 'win32':
     os.environ['LIBRARY_PATH'] = lpath + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
 
 from numba import cuda
+
 from app.mandel_kernel import \
     mandelbrot1, mandelbrot2, horizontal_gaussian_blur, \
     vertical_gaussian_blur, unsharp_mask
@@ -40,14 +41,13 @@ class App(WindowPygame):
         self.init_offset()
 
         h, w = self.height, self.width
-        self.output = np.empty((h, w, 3), dtype=np.ctypeslib.ctypes.c_uint8)
-        self.temp = np.empty((h, w, 3), dtype=np.ctypeslib.ctypes.c_uint8)
-        self.temp2 = np.empty((h, w, 3), dtype=np.ctypeslib.ctypes.c_uint8)
+        self.output = np.empty((h,w,3), dtype=np.ctypeslib.ctypes.c_uint8)
+        self.temp = np.empty((h,w,3), dtype=np.ctypeslib.ctypes.c_uint8)
 
         # Allocate CUDA variables.
-        self.d_temp = cuda.to_device(self.temp)
-        self.d_temp2 = cuda.to_device(self.temp2)
-        self.d_output = cuda.to_device(self.output)
+        self.d_temp = cuda.device_array((h,w,3), dtype=np.uint8)
+        self.d_temp2 = cuda.device_array((h,w,3), dtype=np.uint8)
+        self.d_output = cuda.device_array((h,w,3), dtype=np.uint8)
         self.d_offset = cuda.to_device(self.offset)
         self.d_matrix = cuda.to_device(self.gaussian_kernel)
         self.d_colors = cuda.to_device(self.colors)
@@ -110,10 +110,10 @@ class App(WindowPygame):
     def exit(self):
 
         del self.d_colors, self.d_offset, self.d_output
-        del self.d_temp, self.d_temp2, self.d_matrix
+        del self.d_matrix, self.d_temp, self.d_temp2
+        cuda.close()
 
-        del self.colors, self.offset, self.output
-        del self.temp, self.temp2
+        del self.colors, self.offset, self.output, self.temp
 
 
 if __name__ == '__main__':
