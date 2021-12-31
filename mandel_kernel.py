@@ -45,12 +45,16 @@ class App(WindowPygame):
         self.temp = np.empty((h,w,3), dtype=np.ctypeslib.ctypes.c_uint8)
 
         # Allocate CUDA variables.
-        self.d_temp = cuda.device_array((h,w,3), dtype=np.uint8)
-        self.d_temp2 = cuda.device_array((h,w,3), dtype=np.uint8)
-        self.d_output = cuda.device_array((h,w,3), dtype=np.uint8)
-        self.d_offset = cuda.to_device(self.offset)
-        self.d_matrix = cuda.to_device(self.gaussian_kernel)
-        self.d_colors = cuda.to_device(self.colors)
+        stream = cuda.stream()
+        with stream.auto_synchronize():
+            self.d_temp = cuda.device_array((h,w,3), dtype=np.uint8, stream=stream)
+            self.d_temp2 = cuda.device_array((h,w,3), dtype=np.uint8, stream=stream)
+            self.d_output = cuda.device_array((h,w,3), dtype=np.uint8, stream=stream)
+            self.d_offset = cuda.to_device(self.offset, stream=stream)
+            self.d_matrix = cuda.to_device(self.gaussian_kernel, stream=stream)
+            self.d_colors = cuda.to_device(self.colors, stream=stream)
+
+        self.stream = stream
 
         # Instantiate the Window interface.
         super().init()
@@ -63,54 +67,55 @@ class App(WindowPygame):
         gDimX = self.divide_up(self.width, bDimX)
         gDimY = self.divide_up(self.height, bDimY)
 
+        stream = self.stream
+
         if self.update_flag:
-            self.d_offset.copy_to_device(self.offset)
-            self.d_colors.copy_to_device(self.colors)
+            with stream.auto_synchronize():
+                self.d_offset.copy_to_device(self.offset, stream=stream)
+                self.d_colors.copy_to_device(self.colors, stream=stream)
             self.update_flag = False
 
         # State 1.
-        mandelbrot1[(gDimX,gDimY),(bDimX,bDimY,1)](
-            self.d_temp, self.d_colors, self.width, self.height,
-            self.min_x, self.min_y, step_x, step_y, iters )
-        cuda.synchronize()
+        with stream.auto_synchronize():
+            mandelbrot1[(gDimX,gDimY),(bDimX,bDimY,1),stream](
+                self.d_temp, self.d_colors, self.width, self.height,
+                self.min_x, self.min_y, step_x, step_y, iters )
 
-        if self.num_samples == 1:
-            self.d_temp.copy_to_host(self.temp)
-            self.update_window()
-            return
+            if self.num_samples == 1:
+                self.d_temp.copy_to_host(self.temp, stream=stream)
+                self.update_window()
+                return
 
         # State 2.
-        mandelbrot2[(gDimX,gDimY),(bDimX,bDimY,1)](
-            self.d_temp, self.d_colors, self.width, self.height,
-            self.min_x, self.min_y, step_x, step_y, iters,
-            self.num_samples, self.d_offset, self.d_output )
-        cuda.synchronize()
+        with stream.auto_synchronize():
+            mandelbrot2[(gDimX,gDimY),(bDimX,bDimY,1),stream](
+                self.d_temp, self.d_colors, self.width, self.height,
+                self.min_x, self.min_y, step_x, step_y, iters,
+                self.num_samples, self.d_offset, self.d_output )
 
-        # Image sharpening.
-        self.d_temp.copy_to_device(self.d_output)
+            # Image sharpening.
+            self.d_temp.copy_to_device(self.d_output, stream=stream)
 
-        bDimX = 24
-        gDimX = self.divide_up(self.width, bDimX)
+            bDimX = 24
+            gDimX = self.divide_up(self.width, bDimX)
 
-        horizontal_gaussian_blur[(gDimX,gDimY),(bDimX,bDimY,1)](
-            self.d_matrix, self.d_output, self.d_temp2, self.width, self.height)
-        cuda.synchronize()
+            horizontal_gaussian_blur[(gDimX,gDimY),(bDimX,bDimY,1),stream](
+                self.d_matrix, self.d_output, self.d_temp2, self.width, self.height)
 
-        vertical_gaussian_blur[(gDimX,gDimY),(bDimX,bDimY,1)](
-            self.d_matrix, self.d_temp2, self.d_output, self.width, self.height)
-        cuda.synchronize()
+            vertical_gaussian_blur[(gDimX,gDimY),(bDimX,bDimY,1),stream](
+                self.d_matrix, self.d_temp2, self.d_output, self.width, self.height)
 
-        unsharp_mask[(gDimX,gDimY),(bDimX,bDimY,1)](
-            self.d_temp, self.d_output, self.width, self.height)
-        cuda.synchronize()
+            unsharp_mask[(gDimX,gDimY),(bDimX,bDimY,1),stream](
+                self.d_temp, self.d_output, self.width, self.height)
 
-        self.d_output.copy_to_host(self.output)
-        self.update_window()
+            self.d_output.copy_to_host(self.output, stream=stream)
+            self.update_window()
 
     def exit(self):
 
         del self.d_colors, self.d_offset, self.d_output
         del self.d_matrix, self.d_temp, self.d_temp2
+        del self.stream
         cuda.close()
 
         del self.colors, self.offset, self.output, self.temp
