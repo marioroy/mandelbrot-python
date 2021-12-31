@@ -4,7 +4,7 @@ Mandelbrot functions for cuda.jit.
 
 NVIDIA GeForce RTX 2070 results (press x to start auto zoom).
  cuda.jit
-  ../mandel_kernel.py --width=1280 --height=720 ; 8.2 seconds
+  ../mandel_kernel.py --width=1280 --height=720 ; 8.1 seconds
  PyCUDA
   ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=0 fma=0 ; 9.4 seconds
   ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=0 fma=1 ; 8.0 seconds
