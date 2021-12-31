@@ -59,7 +59,7 @@ $ python3 mandel_queue.py --location 5
 
 Settings can be stored in a configuation file. If choosing to use a
 configuration file, copy ```app.ini``` to ```user.ini``` and use that.
-The ```user.ini``` file is ignored by git.
+The ```user.ini``` file is ignored by git updates.
 
 ```text
 Usage: mandel_queue.py [--config filepath [section]] [options]
@@ -93,7 +93,8 @@ Options:
 
 Values exceeding the range specification are silently clipped to
 the respective minimum or maximum value. The number of iterations
-is computed dynamically based on the performance level.
+is computed dynamically based on the performance level
+(lower equals more iterations).
 
 # Keyboard Shortcuts
 

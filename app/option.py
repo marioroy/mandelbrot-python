@@ -21,7 +21,8 @@ class Option(object):
         epilog = """
           Values exceeding the range specification are silently clipped to
           the respective minimum or maximum value. The number of iterations
-          is computed dynamically based on the performance level.
+          is computed dynamically based on the performance level
+          (lower equals more iterations).
           """
         epilog = " ".join([line.lstrip() for line in epilog.splitlines()])
 
