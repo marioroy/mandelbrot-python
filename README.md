@@ -80,13 +80,13 @@ Options:
   --fast-zoom=ARG      select fast zoom [0,1]: 1
   --smooth-bench=ARG   select smooth bench [0,1]: 0
 
-  CPU Options:
+  CPU Options (mandel_parfor, mandel_queue, mandel_stream):
     --num-threads=ARG  number of threads to use: auto
 
-  CUDA Options:
+  CUDA Options (mandel_cuda):
     --compiler-bindir  directory in which the C compiler resides
 
-  GPU Options (PyCUDA and PyOPENCL only):
+  GPU Options (mandel_cuda, mandel_ocl):
     --mixed-prec=ARG   select mixed-precision flag [0,1,2]: 0
     --fma=ARG          select fused-multiply-add flag [0,1]: 0
 ```

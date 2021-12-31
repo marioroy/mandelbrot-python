@@ -3,6 +3,10 @@
 // This requires double-precision capabilities on the device.
 //
 // Optimization flags defined in ../mandel_cuda.py:
+//
+//   FMA_OFF  GPU matches CPU output (default).
+//   FMA_ON   Enable the Fused-Multiply-Add instruction.
+//
 //   MIXED_PREC1  integer comparison; this may run faster depending on GPU
 //     #if defined(MIXED_PREC1) || defined(MIXED_PREC2)
 //       if ( (zreal.x == sreal.x) && (zreal.y == sreal.y) &&
@@ -10,6 +14,7 @@
 //     #else
 //       if ( (zreal.d == sreal.d) && (zimag.d == simag.d) ) {
 //     #endif
+//
 //   MIXED_PREC2  includes MIXED_PREC1; single-precision addition (hi-bits)
 //     #if defined(MIXED_PREC2)
 //       a.i = (zreal_sqr.y & 0xc0000000) | ((zreal_sqr.y & 0x7ffffff) << 3);
@@ -20,12 +25,13 @@
 //     #endif
 //
 // Depending on the GPU, mixed_prec=1 may run faster than 2.
-// But definitely try 2 for possibly better results.
-// NVIDIA GeForce RTX 2070 1280x720 auto-zoom (press x).
-//   mixed_prec=0 fma=0    9.0 seconds
-//   mixed_prec=1 fma=0    8.4 seconds
-//   mixed_prec=2 fma=0    7.1 seconds
-//   mixed_prec=2 fma=1    6.3 seconds
+// But definitely try mixed_prec=2 for possibly better performance.
+// NVIDIA GeForce RTX 2070 PyCUDA results (press x to start auto zoom).
+// ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=0 --fma=0 ; 9.0 secs
+// ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=0 --fma=1 ; 8.0 secs
+// ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=1 --fma=0 ; 8.4 secs
+// ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=2 --fma=0 ; 7.1 secs
+// ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=2 --fma=1 ; 6.3 secs
 //
 
 #if defined(FMA_ON)

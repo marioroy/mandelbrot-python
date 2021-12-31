@@ -46,15 +46,15 @@ class Option(object):
         _opt(p, "--fast-zoom", "int", "select fast zoom [0,1]: 1")
         _opt(p, "--smooth-bench", "int", "select smooth bench [0,1]: 0")
 
-        g = OptionGroup(p, "CPU Options")
+        g = OptionGroup(p, "CPU Options (mandel_parfor, mandel_queue, mandel_stream)")
         _opt(g, "--num-threads", "string", "number of threads to use: auto")
         p.add_option_group(g)
 
-        g = OptionGroup(p, "CUDA Options")
+        g = OptionGroup(p, "CUDA Options (mandel_cuda)")
         _opt(g, "--compiler-bindir", "str", "directory in which the host C compiler resides")
         p.add_option_group(g)
 
-        g = OptionGroup(p, "GPU Options (PyCUDA and PyOpenCL only)")
+        g = OptionGroup(p, "GPU Options (mandel_cuda, mandel_ocl)")
         _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2]: 0")
         _opt(g, "--fma", "int", "select fused-multiply-add flag [0,1]: 0")
         p.add_option_group(g)

@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Mandelbrot functions for cuda.jit.
+Cuda.jit functions for computing the Mandelbrot Set on the GPU.
+This requires double-precision capabilities on the device.
 
-NVIDIA GeForce RTX 2070 results (press x to start auto zoom).
- cuda.jit
-  ../mandel_kernel.py --width=1280 --height=720 ; 8.1 seconds
- PyCUDA
-  ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=0 fma=0 ; 9.4 seconds
-  ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=0 fma=1 ; 8.0 seconds
-  ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=1 fma=0 ; 8.8 seconds
-  ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=2 fma=0 ; 7.5 seconds
-  ../mandel_cuda.py --width=1280 --height=720 --mixed_prec=2 fma=1 ; 6.7 seconds
+NVIDIA GeForce RTX 2070 cuda.jit result (press x to start auto zoom).
+../mandel_kernel.py --width=1280 --height=720 ; 8.1 seconds
 """
 
 import math
