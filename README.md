@@ -3,7 +3,9 @@
 A demonstration for exploring the [Mandelbrot Set](https://en.wikipedia.org/wiki/Mandelbrot_set)
 using Python. Similarly, CUDA and OpenCL solutions for comparison.
 
-![Mandelbrot Set](../assets/mandelbrot.png?raw=true)
+<p align="center">
+  <img src="../assets/mandelbrot.png?raw=true" alt="Mandelbrot Set"/>
+</p>
 
 **Requirements and Installation**
 
@@ -49,11 +51,15 @@ $ python3 mandel_queue.py --location 5
 
 **Auto-Zoom Destinations**
 
-![Auto-Zoom Locations](../assets/locations.png?raw=true)
+<p align="center">
+  <img src="../assets/locations.png?raw=true" alt="Auto-Zoom Locations"/>
+</p>
 
 **Color Schemes**
 
-![Color Schemes](../assets/colorschemes.png?raw=true)
+<p align="center">
+  <img src="../assets/colorschemes.png?raw=true" alt="Color Schemes"/>
+</p>
 
 # Usage
 
