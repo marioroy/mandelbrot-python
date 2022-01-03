@@ -157,12 +157,11 @@ class App(WindowPygame):
     def display(self):
 
         iters, step_x, step_y = self.update_iters( show_info=True )
+        chunksize = max(2, int(math.ceil(300 / self.width * 2)))
 
         for state in range(1, 2 if self.num_samples == 1 else 3):
-            if state == 1:
-                chunksize = 2
-            else:
-                chunksize = 1 if iters >= 600 else 2
+            if state == 2 and iters >= 600:
+                chunksize = chunksize // 2
 
             # Submit job parameters followed by chunked data.
             num_chunks = self.divide_up(self.height, chunksize)
