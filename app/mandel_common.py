@@ -6,20 +6,18 @@ Common constants and functions for mandel_for and mandel_parfor.
 import math
 import os
 
-from .base import GRADIENT_LENGTH, RADIUS
-
 os.environ['NUMBA_DISABLE_INTEL_SVML'] = str(1)
 os.environ['NUMBA_LOOP_VECTORIZE'] = str(0)
 os.environ['NUMBA_SLP_VECTORIZE'] = str(0)
 os.environ['NUMBA_OPT'] = str(3)
 
-ESCAPE_RADIUS_2 = RADIUS * RADIUS
-INSIDE_COLOR1 = (0x01,0x01,0x01)
-INSIDE_COLOR2 = (0x8d,0x02,0x1f)
-LOG2 = 0.69314718055994530942
+from numba import njit, uint8, int16
+from .base import GRADIENT_LENGTH, RADIUS
 
-import numba as nb
-from numba import njit
+ESCAPE_RADIUS_2 = RADIUS * RADIUS
+INSIDE_COLOR1 = (uint8(0x01),uint8(0x01),uint8(0x01))
+INSIDE_COLOR2 = (uint8(0x8d),uint8(0x02),uint8(0x1f))
+LOG2 = 0.69314718055994530942
 
 @njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)
 def get_color(colors, zreal_sqr, zimag_sqr, n):
@@ -36,9 +34,9 @@ def get_color(colors, zreal_sqr, zimag_sqr, n):
     c1 = colors[i_mu % GRADIENT_LENGTH]
     c2 = colors[(i_mu + 1 if dx > 0.0 else i_mu) % GRADIENT_LENGTH]
 
-    r = int(dx * (c2[0] - c1[0]) + c1[0])
-    g = int(dx * (c2[1] - c1[1]) + c1[1])
-    b = int(dx * (c2[2] - c1[2]) + c1[2])
+    r = uint8(dx * (c2[0] - c1[0]) + c1[0])
+    g = uint8(dx * (c2[1] - c1[1]) + c1[1])
+    b = uint8(dx * (c2[2] - c1[2]) + c1[2])
 
     return (r,g,b)
 
@@ -47,9 +45,9 @@ def get_color(colors, zreal_sqr, zimag_sqr, n):
 def check_colors(c1, c2):
 
     # Return false if the colors are within tolerance.
-    if abs(nb.types.i2(c2[0]) - c1[0]) > 8: return True
-    if abs(nb.types.i2(c2[1]) - c1[1]) > 8: return True
-    if abs(nb.types.i2(c2[2]) - c1[2]) > 8: return True
+    if abs(int16(c2[0]) - c1[0]) > 8: return True
+    if abs(int16(c2[1]) - c1[1]) > 8: return True
+    if abs(int16(c2[2]) - c1[2]) > 8: return True
 
     return False
 

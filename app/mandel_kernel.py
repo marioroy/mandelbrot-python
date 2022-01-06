@@ -10,18 +10,16 @@ NVIDIA GeForce RTX 2070 cuda.jit result (press x to start auto zoom).
 import math
 import os
 import numpy as np
-import numba as nb
 
-from numba import cuda
-
+from numba import cuda, float32, uint8, int16, int32
 from .base import GRADIENT_LENGTH, RADIUS
 
 ESCAPE_RADIUS_2 = RADIUS * RADIUS
-INSIDE_COLOR1 = (0x01,0x01,0x01)
-INSIDE_COLOR2 = (0x8d,0x02,0x1f)
+INSIDE_COLOR1 = (uint8(0x01),uint8(0x01),uint8(0x01))
+INSIDE_COLOR2 = (uint8(0x8d),uint8(0x02),uint8(0x1f))
 LOG2 = 0.69314718055994530942
 
-@cuda.jit(device=True, opt=True)
+@cuda.jit(device=True)
 def get_color(colors, zreal_sqr, zimag_sqr, n):
 
     # Smooth coloring.
@@ -36,25 +34,25 @@ def get_color(colors, zreal_sqr, zimag_sqr, n):
     c1 = colors[i_mu % GRADIENT_LENGTH]
     c2 = colors[(i_mu + 1 if dx > 0.0 else i_mu) % GRADIENT_LENGTH]
 
-    r = int(dx * (c2[0] - c1[0]) + c1[0])
-    g = int(dx * (c2[1] - c1[1]) + c1[1])
-    b = int(dx * (c2[2] - c1[2]) + c1[2])
+    r = uint8(dx * (c2[0] - c1[0]) + c1[0])
+    g = uint8(dx * (c2[1] - c1[1]) + c1[1])
+    b = uint8(dx * (c2[2] - c1[2]) + c1[2])
 
     return (r,g,b)
 
 
-@cuda.jit(device=True, opt=True)
+@cuda.jit(device=True)
 def check_colors(c1, c2):
 
     # Return false if the colors are within tolerance.
-    if abs(nb.types.i2(c2[0]) - c1[0]) > 8: return True
-    if abs(nb.types.i2(c2[1]) - c1[1]) > 8: return True
-    if abs(nb.types.i2(c2[2]) - c1[2]) > 8: return True
+    if abs(int16(c2[0]) - c1[0]) > 8: return True
+    if abs(int16(c2[1]) - c1[1]) > 8: return True
+    if abs(int16(c2[2]) - c1[2]) > 8: return True
 
     return False
 
 
-@cuda.jit(device=True, opt=True)
+@cuda.jit(device=True)
 def mandel1(colors, creal, cimag, max_iters):
 
     # Main cardioid bulb test.
@@ -118,7 +116,7 @@ def mandel1(colors, creal, cimag, max_iters):
     return INSIDE_COLOR1
 
 
-@cuda.jit(device=True, opt=True)
+@cuda.jit(device=True)
 def mandel2(colors, creal, cimag, max_iters):
 
     # Main cardioid bulb test.
@@ -156,7 +154,7 @@ def mandel2(colors, creal, cimag, max_iters):
     return INSIDE_COLOR1
 
 
-@cuda.jit('void(u1[:,:,:], i2[:,:], i4, i4, f8, f8, f8, f8, i4)', opt=True)
+@cuda.jit('void(u1[:,:,:], i2[:,:], i4, i4, f8, f8, f8, f8, i4)')
 def mandelbrot1(temp, colors, width, height, min_x, min_y, step_x, step_y, max_iters):
 
     y = cuda.blockDim.y * cuda.blockIdx.y + cuda.threadIdx.y
@@ -170,17 +168,13 @@ def mandelbrot1(temp, colors, width, height, min_x, min_y, step_x, step_y, max_i
     temp[y,x] = mandel1(colors, creal, cimag, max_iters)
 
 
-@cuda.jit('void(u1[:,:,:], i2[:,:], i4, i4, f8, f8, f8, f8, i4, i4, f8[:], u1[:,:,:])', opt=True)
+@cuda.jit('void(u1[:,:,:], i2[:,:], i4, i4, f8, f8, f8, f8, i4, i4, f8[:], u1[:,:,:])')
 def mandelbrot2(temp, colors, width, height, min_x, min_y, step_x, step_y, max_iters, aafactor, offset, output):
 
     y = cuda.blockDim.y * cuda.blockIdx.y + cuda.threadIdx.y
     x = cuda.blockDim.x * cuda.blockIdx.x + cuda.threadIdx.x
 
     if y >= height or x >= width: return
-
-    r = nb.types.i4(0)
-    g = nb.types.i4(0)
-    b = nb.types.i4(0)
 
     c1 = temp[y,x]
     count = False
@@ -212,9 +206,9 @@ def mandelbrot2(temp, colors, width, height, min_x, min_y, step_x, step_y, max_i
     aaarea = aafactor * aafactor
     aaarea2 = (aaarea - 1) * 2
 
-    r = c1[0]
-    g = c1[1]
-    b = c1[2]
+    r = int32(c1[0])
+    g = int32(c1[1])
+    b = int32(c1[2])
 
     for i in range(0, aaarea2, 2):
         creal = min_x + ((x + offset[i]) * step_x)
@@ -227,17 +221,17 @@ def mandelbrot2(temp, colors, width, height, min_x, min_y, step_x, step_y, max_i
         # Main cardioid bulb test.
         zreal = math.hypot(creal - 0.25, cimag)
         if creal < zreal - 2 * zreal * zreal + 0.25:
-            r += INSIDE_COLOR2[0]
-            g += INSIDE_COLOR2[1]
-            b += INSIDE_COLOR2[2]
+            r = int32(r + INSIDE_COLOR2[0])
+            g = int32(g + INSIDE_COLOR2[1])
+            b = int32(b + INSIDE_COLOR2[2])
             continue
 
         # Period-2 bulb test to the left of the cardioid.
         zreal = creal + 1
         if zreal * zreal + cimag * cimag < 0.0625:
-            r += INSIDE_COLOR2[0]
-            g += INSIDE_COLOR2[1]
-            b += INSIDE_COLOR2[2]
+            r = int32(r + INSIDE_COLOR2[0])
+            g = int32(g + INSIDE_COLOR2[1])
+            b = int32(b + INSIDE_COLOR2[2])
             continue
 
         zreal = creal
@@ -267,14 +261,14 @@ def mandelbrot2(temp, colors, width, height, min_x, min_y, step_x, step_y, max_i
         else:
             color = INSIDE_COLOR1
 
-        r += color[0]
-        g += color[1]
-        b += color[2]
+        r = int32(r + color[0])
+        g = int32(g + color[1])
+        b = int32(b + color[2])
 
-    output[y,x] = (int(r/aaarea), int(g/aaarea), int(b/aaarea))
+    output[y,x] = (uint8(r/aaarea), uint8(g/aaarea), uint8(b/aaarea))
 
 
-@cuda.jit('void(f4[:], u1[:,:,:], u1[:,:,:], i4, i4)', opt=True)
+@cuda.jit('void(f4[:], u1[:,:,:], u1[:,:,:], i4, i4)')
 def horizontal_gaussian_blur(matrix, src, dst, width, height):
 
     y = cuda.blockDim.y * cuda.blockIdx.y + cuda.threadIdx.y
@@ -287,9 +281,9 @@ def horizontal_gaussian_blur(matrix, src, dst, width, height):
     # Gaussian blur optimized 1-D loop.
     rgb = src[y,x]
     wgt = matrix[cols]
-    r = nb.types.f4(wgt * rgb[0] + 0.5)
-    g = nb.types.f4(wgt * rgb[1] + 0.5)
-    b = nb.types.f4(wgt * rgb[2] + 0.5)
+    r = float32(wgt * rgb[0] + 0.5)
+    g = float32(wgt * rgb[1] + 0.5)
+    b = float32(wgt * rgb[2] + 0.5)
     col2 = cols + cols
 
     for col in range(-cols, 0):
@@ -304,15 +298,15 @@ def horizontal_gaussian_blur(matrix, src, dst, width, height):
         rgb2 = src[y,ix]
 
         wgt = matrix[cols + col]
-        r += nb.types.f4(wgt * (nb.types.i2(rgb[0]) + rgb2[0]))
-        g += nb.types.f4(wgt * (nb.types.i2(rgb[1]) + rgb2[1]))
-        b += nb.types.f4(wgt * (nb.types.i2(rgb[2]) + rgb2[2]))
+        r += float32(wgt * (int16(rgb[0]) + rgb2[0]))
+        g += float32(wgt * (int16(rgb[1]) + rgb2[1]))
+        b += float32(wgt * (int16(rgb[2]) + rgb2[2]))
         col2 -= 2
 
-    dst[y,x] = (int(r), int(g), int(b))
+    dst[y,x] = (uint8(r), uint8(g), uint8(b))
 
 
-@cuda.jit('void(f4[:], u1[:,:,:], u1[:,:,:], i4, i4)', opt=True)
+@cuda.jit('void(f4[:], u1[:,:,:], u1[:,:,:], i4, i4)')
 def vertical_gaussian_blur(matrix, src, dst, width, height):
 
     y = cuda.blockDim.y * cuda.blockIdx.y + cuda.threadIdx.y
@@ -325,9 +319,9 @@ def vertical_gaussian_blur(matrix, src, dst, width, height):
     # Gaussian blur optimized 1-D loop.
     rgb = src[y,x]
     wgt = matrix[cols]
-    r = nb.types.f4(wgt * rgb[0] + 0.5)
-    g = nb.types.f4(wgt * rgb[1] + 0.5)
-    b = nb.types.f4(wgt * rgb[2] + 0.5)
+    r = float32(wgt * rgb[0] + 0.5)
+    g = float32(wgt * rgb[1] + 0.5)
+    b = float32(wgt * rgb[2] + 0.5)
     col2 = cols + cols
 
     for col in range(-cols, 0):
@@ -342,15 +336,15 @@ def vertical_gaussian_blur(matrix, src, dst, width, height):
         rgb2 = src[iy,x]
 
         wgt = matrix[cols + col]
-        r += nb.types.f4(wgt * (nb.types.i2(rgb[0]) + rgb2[0]))
-        g += nb.types.f4(wgt * (nb.types.i2(rgb[1]) + rgb2[1]))
-        b += nb.types.f4(wgt * (nb.types.i2(rgb[2]) + rgb2[2]))
+        r += float32(wgt * (int16(rgb[0]) + rgb2[0]))
+        g += float32(wgt * (int16(rgb[1]) + rgb2[1]))
+        b += float32(wgt * (int16(rgb[2]) + rgb2[2]))
         col2 -= 2
 
-    dst[y,x] = (int(r), int(g), int(b))
+    dst[y,x] = (uint8(r), uint8(g), uint8(b))
 
 
-@cuda.jit('void(u1[:,:,:], u1[:,:,:], i4, i4)', opt=True)
+@cuda.jit('void(u1[:,:,:], u1[:,:,:], i4, i4)')
 def unsharp_mask(src, dst, width, height):
     """
     Sharpen the destination image using the Unsharp Mask technique.
@@ -364,8 +358,8 @@ def unsharp_mask(src, dst, width, height):
 
     if y >= height or x >= width: return
 
-    percent = nb.types.f4(65.0 / 100)
-    threshold = nb.types.i2(0)
+    percent = float32(65.0 / 100)
+    threshold = int16(0)
 
     # Python version of C code plus multi-core CPU utilization.
     # https://github.com/python-pillow/Pillow/blob/main/src/libImaging/UnsharpMask.c
@@ -374,23 +368,23 @@ def unsharp_mask(src, dst, width, height):
     blur_pixel = dst[y,x]
 
     # Compare in/out pixels, apply sharpening.
-    diff = nb.types.i2(nb.types.i2(norm_pixel[0]) - blur_pixel[0])
+    diff = int16(int16(norm_pixel[0]) - blur_pixel[0])
     if abs(diff) > threshold:
         # Add the difference to the original pixel.
-        r = min(255, max(0, int(diff * percent + norm_pixel[0])))
+        r = min(255, max(0, int16(diff * percent + norm_pixel[0])))
     else:
         # New pixel is the same as the original pixel.
         r = norm_pixel[0]
 
-    diff = nb.types.i2(nb.types.i2(norm_pixel[1]) - blur_pixel[1])
+    diff = int16(int16(norm_pixel[1]) - blur_pixel[1])
     if abs(diff) > threshold:
-        g = min(255, max(0, int(diff * percent + norm_pixel[1])))
+        g = min(255, max(0, int16(diff * percent + norm_pixel[1])))
     else:
         g = norm_pixel[1]
 
-    diff = nb.types.i2(nb.types.i2(norm_pixel[2]) - blur_pixel[2])
+    diff = int16(int16(norm_pixel[2]) - blur_pixel[2])
     if abs(diff) > threshold:
-        b = min(255, max(0, int(diff * percent + norm_pixel[2])))
+        b = min(255, max(0, int16(diff * percent + norm_pixel[2])))
     else:
         b = norm_pixel[2]
 

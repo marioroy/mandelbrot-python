@@ -6,9 +6,8 @@ Mandelbrot functions.
 from .mandel_common import get_color, check_colors, mandel1, mandel2
 
 import numpy as np
-import numba as nb
 
-from numba import njit
+from numba import njit, float32, uint8, int16
 
 @njit('void(u1[:,:,:], i2[:,:], UniTuple(i4,2), f8, f8, f8, f8, i4)', nogil=True)
 def mandelbrot1(temp, colors, seq, min_x, min_y, step_x, step_y, max_iters):
@@ -71,7 +70,7 @@ def mandelbrot2(temp, colors, seq, min_x, min_y, step_x, step_y, max_iters, aafa
                 c[1] += color[1]
                 c[2] += color[2]
 
-            output[y,x] = (int(c[0]/aaarea), int(c[1]/aaarea), int(c[2]/aaarea))
+            output[y,x] = (uint8(c[0]/aaarea), uint8(c[1]/aaarea), uint8(c[2]/aaarea))
 
 
 @njit('void(f4[:], u1[:,:,:], u1[:,:,:], UniTuple(i4,2))', nogil=True)
@@ -83,7 +82,7 @@ def horizontal_gaussian_blur(matrix, src, dst, seq):
     for y in range(seq[0], seq[1]):
         for x in range(width):
 
-          # r = g = b = nb.types.f4(0.5)
+          # r = g = b = float32(0.5)
           # for col in range(-cols, cols + 1):
           #     ix = x + col
           #     if ix < 0:
@@ -92,16 +91,16 @@ def horizontal_gaussian_blur(matrix, src, dst, seq):
           #         ix = width - 1
           #     rgb = src[y,ix]
           #     wgt = matrix[cols + col]
-          #     r += nb.types.f4(wgt * rgb[0])
-          #     g += nb.types.f4(wgt * rgb[1])
-          #     b += nb.types.f4(wgt * rgb[2])
+          #     r += float32(wgt * rgb[0])
+          #     g += float32(wgt * rgb[1])
+          #     b += float32(wgt * rgb[2])
 
             # Gaussian blur optimized 1-D loop.
             rgb = src[y,x]
             wgt = matrix[cols]
-            r = nb.types.f4(wgt * rgb[0] + 0.5)
-            g = nb.types.f4(wgt * rgb[1] + 0.5)
-            b = nb.types.f4(wgt * rgb[2] + 0.5)
+            r = float32(wgt * rgb[0] + 0.5)
+            g = float32(wgt * rgb[1] + 0.5)
+            b = float32(wgt * rgb[2] + 0.5)
             col2 = cols + cols
 
             for col in range(-cols, 0):
@@ -116,12 +115,12 @@ def horizontal_gaussian_blur(matrix, src, dst, seq):
                 rgb2 = src[y,ix]
 
                 wgt = matrix[cols + col]
-                r += nb.types.f4(wgt * (nb.types.i2(rgb[0]) + rgb2[0]))
-                g += nb.types.f4(wgt * (nb.types.i2(rgb[1]) + rgb2[1]))
-                b += nb.types.f4(wgt * (nb.types.i2(rgb[2]) + rgb2[2]))
+                r += float32(wgt * (int16(rgb[0]) + rgb2[0]))
+                g += float32(wgt * (int16(rgb[1]) + rgb2[1]))
+                b += float32(wgt * (int16(rgb[2]) + rgb2[2]))
                 col2 -= 2
 
-            dst[y,x] = (int(r), int(g), int(b))
+            dst[y,x] = (uint8(r), uint8(g), uint8(b))
 
 
 @njit('void(u1[:,:,:], u1[:,:,:], UniTuple(i4,2))', nogil=True)
@@ -134,8 +133,8 @@ def unsharp_mask(src, dst, seq):
     correction to the amount of blur, multiplied by percent.
     """
     height, width = src.shape[:2]
-    percent = nb.types.f4(65.0 / 100)
-    threshold = nb.types.i2(0)
+    percent = float32(65.0 / 100)
+    threshold = int16(0)
 
     # Python version of C code plus multi-core CPU utilization.
     # https://github.com/python-pillow/Pillow/blob/main/src/libImaging/UnsharpMask.c
@@ -147,23 +146,23 @@ def unsharp_mask(src, dst, seq):
             blur_pixel = dst[y,x]
 
             # Compare in/out pixels, apply sharpening.
-            diff = nb.types.i2(nb.types.i2(norm_pixel[0]) - blur_pixel[0])
+            diff = int16(int16(norm_pixel[0]) - blur_pixel[0])
             if abs(diff) > threshold:
                 # Add the difference to the original pixel.
-                r = min(255, max(0, int(diff * percent + norm_pixel[0])))
+                r = min(255, max(0, int16(diff * percent + norm_pixel[0])))
             else:
                 # New pixel is the same as the original pixel.
                 r = norm_pixel[0]
 
-            diff = nb.types.i2(nb.types.i2(norm_pixel[1]) - blur_pixel[1])
+            diff = int16(int16(norm_pixel[1]) - blur_pixel[1])
             if abs(diff) > threshold:
-                g = min(255, max(0, int(diff * percent + norm_pixel[1])))
+                g = min(255, max(0, int16(diff * percent + norm_pixel[1])))
             else:
                 g = norm_pixel[1]
 
-            diff = nb.types.i2(nb.types.i2(norm_pixel[2]) - blur_pixel[2])
+            diff = int16(int16(norm_pixel[2]) - blur_pixel[2])
             if abs(diff) > threshold:
-                b = min(255, max(0, int(diff * percent + norm_pixel[2])))
+                b = min(255, max(0, int16(diff * percent + norm_pixel[2])))
             else:
                 b = norm_pixel[2]
 
