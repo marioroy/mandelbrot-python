@@ -34,6 +34,12 @@ class Option(object):
           else:
             parser.add_option(opt, type=t, help=h, metavar="ARG")
 
+        # allow options with underscore by replacing with dash
+        for i in range(1, len(sys.argv)):
+            if sys.argv[i].startswith('--'):
+                sys.argv[i] = sys.argv[i].replace('_', '-')
+
+        # configure options
         _opt(p, "--shortcuts", None, "show keyboard shortcuts and exit")
         _opt(p, "--width", "int", "width of window [100-8000]: 800")
         _opt(p, "--height", "int", "height of window [100-5000]: 500")
