@@ -19,7 +19,7 @@ if sys.platform != 'win32':
     lpath = os.getenv('LIBRARY_PATH') or ''
     os.environ['LIBRARY_PATH'] = lpath + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
 
-from numba import cuda
+from numba import config, cuda
 
 from app.mandel_kernel import \
     mandelbrot1, mandelbrot2, horizontal_gaussian_blur, \
@@ -30,7 +30,12 @@ class App(WindowPygame):
     def __init__(self, opt):
         super().__init__(opt)
 
-        print("[GPU]", cuda.get_current_device().name.decode("utf-8"))
+        if not config.ENABLE_CUDASIM:
+            # Simulator throws exception.
+            print("[GPU]", cuda.get_current_device().name.decode("utf-8"))
+        else:
+            print("[GPU] CUDA Simulator")
+
         print("[{:>3}] color scheme {}".format(self.level, self.color_scheme))
 
         # Construct memory objects.
