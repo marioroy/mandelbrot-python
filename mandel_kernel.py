@@ -10,8 +10,6 @@ import sys
 import numpy as np
 
 from app.option import OPT
-from app.base import GRADIENT_LENGTH
-from app.interface import WindowPygame
 
 if sys.platform != 'win32':
     cpath = os.getenv('CPATH') or ''
@@ -20,6 +18,21 @@ if sys.platform != 'win32':
     os.environ['LIBRARY_PATH'] = lpath + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
 
 from numba import config, cuda
+from numba.cuda.cudadrv import nvvm
+from numba.core import utils
+
+if config.ENABLE_CUDASIM:
+    print("Script not supported in CUDA simulator, exiting...")
+    sys.exit(1)
+if utils.MACHINE_BITS == 32:
+    print("CUDA not supported for 32-bit architecture, exiting...")
+    sys.exit(1)
+if not nvvm.is_available():
+    print("CUDA libNVVM not available, exiting...")
+    sys.exit(1)
+
+from app.base import GRADIENT_LENGTH
+from app.interface import WindowPygame
 
 from app.mandel_kernel import \
     mandelbrot1, mandelbrot2, horizontal_gaussian_blur, \
@@ -30,12 +43,7 @@ class App(WindowPygame):
     def __init__(self, opt):
         super().__init__(opt)
 
-        if not config.ENABLE_CUDASIM:
-            # Simulator throws exception.
-            print("[GPU]", cuda.get_current_device().name.decode("utf-8"))
-        else:
-            print("[GPU] CUDA Simulator")
-
+        print("[GPU]", cuda.get_current_device().name.decode("utf-8"))
         print("[{:>3}] color scheme {}".format(self.level, self.color_scheme))
 
         # Construct memory objects.

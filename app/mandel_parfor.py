@@ -3,10 +3,9 @@
 Mandelbrot functions. Loop using Numba's parfor loop.
 """
 
-from .mandel_common import get_color, check_colors, mandel1, mandel2
-
 import numpy as np
 
+from .mandel_common import get_color, check_colors, mandel1, mandel2
 try:
     # Import set_parallel_chunksize if available.
     #   https://github.com/IntelLabs/numba/tree/autochunk

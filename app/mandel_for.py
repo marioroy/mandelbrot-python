@@ -3,10 +3,9 @@
 Mandelbrot functions.
 """
 
-from .mandel_common import get_color, check_colors, mandel1, mandel2
-
 import numpy as np
 
+from .mandel_common import get_color, check_colors, mandel1, mandel2
 from numba import njit, float32, uint8, int16
 
 @njit('void(u1[:,:,:], i2[:,:], UniTuple(i4,2), f8, f8, f8, f8, i4)', nogil=True)

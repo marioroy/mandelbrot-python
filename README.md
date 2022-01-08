@@ -32,7 +32,7 @@ $ pip3 install pycuda    # optional, for GPU
 
 Rendering on the GPU requires double-precision support on the device.
 On FreeBSD, install ```pocl``` for OpenCL on the CPU. It works quite well.
-On Windows, run ```vcvars.bat``` first (Visual Studio) for CUDA/OpenCL.
+On Windows, run ```vcvars64.bat``` first (Visual Studio) for CUDA/OpenCL.
 
 ```text
 mandel_queue.py   - Run parallel using a queue for IPC

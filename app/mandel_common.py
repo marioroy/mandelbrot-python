@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
 """
-Common constants and functions for mandel_for and mandel_parfor.
+Common constants and functions for mandel_kernel, mandel_for, and mandel_parfor.
 """
 
+__all__ = ["get_color", "check_colors", "mandel1", "mandel2"]
+
 import math
-import os
+import sys
 
-os.environ['NUMBA_DISABLE_INTEL_SVML'] = str(1)
-os.environ['NUMBA_LOOP_VECTORIZE'] = str(0)
-os.environ['NUMBA_SLP_VECTORIZE'] = str(0)
-os.environ['NUMBA_OPT'] = str(3)
+from .base import GRADIENT_LENGTH, INSIDE_COLOR1, INSIDE_COLOR2, RADIUS
 
-from numba import njit, uint8, int16
-from .base import GRADIENT_LENGTH, RADIUS
-
+USE_CUDA = True if "app.mandel_kernel" in sys.modules else False
 ESCAPE_RADIUS_2 = RADIUS * RADIUS
-INSIDE_COLOR1 = (uint8(0x01),uint8(0x01),uint8(0x01))
-INSIDE_COLOR2 = (uint8(0x8d),uint8(0x02),uint8(0x1f))
 LOG2 = 0.69314718055994530942
 
-@njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)
-def get_color(colors, zreal_sqr, zimag_sqr, n):
+if USE_CUDA:
+    from numba import cuda, uint8, int16
+else:
+    import os
+    os.environ['NUMBA_DISABLE_INTEL_SVML'] = str(1)
+    os.environ['NUMBA_LOOP_VECTORIZE'] = str(0)
+    os.environ['NUMBA_SLP_VECTORIZE'] = str(0)
+    os.environ['NUMBA_OPT'] = str(3)
+    from numba import njit, uint8, int16
+
+def _get_color(colors, zreal_sqr, zimag_sqr, n):
 
     # Smooth coloring.
     normz = math.sqrt(zreal_sqr + zimag_sqr)
@@ -40,9 +44,12 @@ def get_color(colors, zreal_sqr, zimag_sqr, n):
 
     return (r,g,b)
 
+get_color = \
+    cuda.jit(device=True)(_get_color) if USE_CUDA else \
+    njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)(_get_color)
 
-@njit('b1(u1[:], u1[:])', nogil=True)
-def check_colors(c1, c2):
+
+def _check_colors(c1, c2):
 
     # Return false if the colors are within tolerance.
     if abs(int16(c2[0]) - c1[0]) > 8: return True
@@ -51,9 +58,12 @@ def check_colors(c1, c2):
 
     return False
 
+check_colors = \
+    cuda.jit(device=True)(_check_colors) if USE_CUDA else \
+    njit('b1(u1[:], u1[:])', nogil=True)(_check_colors)
 
-@njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)
-def mandel1(colors, creal, cimag, max_iters):
+
+def _mandel1(colors, creal, cimag, max_iters):
 
     # Main cardioid bulb test.
     zreal = math.hypot(creal - 0.25, cimag)
@@ -115,9 +125,12 @@ def mandel1(colors, creal, cimag, max_iters):
 
     return INSIDE_COLOR1
 
+mandel1 = \
+    cuda.jit(device=True)(_mandel1) if USE_CUDA else \
+    njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)(_mandel1)
 
-@njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)
-def mandel2(colors, creal, cimag, max_iters):
+
+def _mandel2(colors, creal, cimag, max_iters):
 
     # Main cardioid bulb test.
     zreal = math.hypot(creal - 0.25, cimag)
@@ -152,4 +165,8 @@ def mandel2(colors, creal, cimag, max_iters):
         zreal = zreal_sqr - zimag_sqr + creal
 
     return INSIDE_COLOR1
+
+mandel2 = \
+    "Not used" if USE_CUDA else \
+    njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)(_mandel2)
 
