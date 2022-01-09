@@ -18,17 +18,12 @@ if sys.platform != 'win32':
     os.environ['LIBRARY_PATH'] = lpath + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
 
 from numba import config, cuda
-from numba.cuda.cudadrv import nvvm
-from numba.core import utils
 
 if config.ENABLE_CUDASIM:
     print("Script not supported in CUDA simulator, exiting...")
     sys.exit(1)
-if utils.MACHINE_BITS == 32:
-    print("CUDA not supported for 32-bit architecture, exiting...")
-    sys.exit(1)
-if not nvvm.is_available():
-    print("CUDA libNVVM not available, exiting...")
+if not cuda.is_available():
+    print("CUDA not available, exiting...")
     sys.exit(1)
 
 from app.base import GRADIENT_LENGTH
