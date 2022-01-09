@@ -9,7 +9,7 @@ import math
 import numpy as np
 import random
 
-GRADIENT_LENGTH = 256
+GRADIENT_LENGTH = 260
 INSIDE_COLOR1 = (np.uint8(0x01),np.uint8(0x01),np.uint8(0x01))
 INSIDE_COLOR2 = (np.uint8(0x8d),np.uint8(0x02),np.uint8(0x1f))
 RADIUS = 16.0
