@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     s = timer()
     mandelbrot2(pixels1, pixels2)
-    print(" antialiasing {:.3f} seconds".format(timer() - s))
+    print("anti-aliasing {:.3f} seconds".format(timer() - s))
 
     s = timer()
     horizontal_gaussian_blur(gkernel, pixels2, pixels3)

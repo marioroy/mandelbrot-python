@@ -5,7 +5,7 @@ Visualizing the Mandelbrot Set Using Python by Blake Sanie, Nov 29, 2020.
 https://medium.com/swlh/visualizing-the-mandelbrot-set-using-python-50-lines-f6aa5a05cf0f
 
 Use Python Numba for C-like performance, Jan 11, 2022.
-Part 2 of 4 Antialiasing.
+Part 2 of 4 Apply Anti-Aliasing.
 """
 
 from numba import njit, int16
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     s = timer()
     mandelbrot2(pixels1, pixels2)
-    print(" antialiasing {:.3f} seconds".format(timer() - s))
+    print("anti-aliasing {:.3f} seconds".format(timer() - s))
 
     save_image(pixels2, "img2.png", show_image=False)
 

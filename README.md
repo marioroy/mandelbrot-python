@@ -30,7 +30,7 @@ $ pip3 install pycuda    # optional, for GPU
 
 **Demo Folder**
 
-Non-parallel demonstrations for creating the Mandelbrot Set, apply Antialiasing,
+Non-parallel demonstrations for creating the Mandelbrot Set, apply Anti-Aliasing,
 Gaussian Blur, and Unsharp Mask via a step-by-step approach.
 
 **Python Scripts**
