@@ -4,10 +4,7 @@
 Explore the Mandelbrot Set on the GPU using PyCUDA.
 """
 
-import io
-import math
-import os
-import sys
+import io, os, sys
 import numpy as np
 
 from app.option import OPT

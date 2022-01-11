@@ -5,9 +5,7 @@ Provides the Pygame-based window interface.
 
 __all__ = ["WindowPygame"]
 
-import math
-import sys
-import time
+import math, sys, time
 import numpy as np
 import pygame as pg
 

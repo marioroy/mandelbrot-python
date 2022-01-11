@@ -7,7 +7,9 @@ NVIDIA GeForce RTX 2070 cuda.jit result (press x to start auto zoom).
 ../mandel_kernel.py --width=1280 --height=720 ; 8.1 seconds
 """
 
-import math
+import math, os
+
+os.environ['MANDEL_USE_CUDA'] = str(1)
 
 from .base import RADIUS, INSIDE_COLOR1, INSIDE_COLOR2
 from .mandel_common import get_color, check_colors, mandel1

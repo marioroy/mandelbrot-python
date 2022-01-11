@@ -16,9 +16,7 @@ Results taken from an 1920x1080 auto-zoom session on a 32-core box.
   mandel_stream     9.1 seconds  Socket
 """
 
-import math
 import os
-import sys
 import numpy as np
 
 from app.option import OPT

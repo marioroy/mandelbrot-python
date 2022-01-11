@@ -5,19 +5,17 @@ Common constants and functions for mandel_kernel, mandel_for, and mandel_parfor.
 
 __all__ = ["get_color", "check_colors", "mandel1", "mandel2"]
 
-import math
-import sys
+import math, os
 
 from .base import GRADIENT_LENGTH, INSIDE_COLOR1, INSIDE_COLOR2, RADIUS
 
-USE_CUDA = True if "app.mandel_kernel" in sys.modules else False
+USE_CUDA = bool(os.getenv('MANDEL_USE_CUDA') or 0)
 ESCAPE_RADIUS_2 = RADIUS * RADIUS
 LOG2 = 0.69314718055994530942
 
 if USE_CUDA:
     from numba import cuda, uint8, int16
 else:
-    import os
     os.environ['NUMBA_DISABLE_INTEL_SVML'] = str(1)
     os.environ['NUMBA_LOOP_VECTORIZE'] = str(0)
     os.environ['NUMBA_SLP_VECTORIZE'] = str(0)

@@ -8,9 +8,7 @@ SimpleQueue has noticeably lesser overhead compared to Queue.
 See app/parallel.py.
 """
 
-import math
-import os
-import sys
+import math, os, sys
 import numpy as np
 
 from app.option import OPT

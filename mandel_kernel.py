@@ -4,9 +4,7 @@
 Explore the Mandelbrot Set on the GPU using cuda.jit.
 """
 
-import math
-import os
-import sys
+import os, sys
 import numpy as np
 
 from app.option import OPT

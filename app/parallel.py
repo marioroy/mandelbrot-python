@@ -5,8 +5,7 @@ Provides auto-selection of various classes for multi-platform support.
 
 __all__ = ['USE_FORK', 'Barrier', 'Queue', 'Thread']
 
-import os
-import sys
+import os, sys
 
 # By default use threading on macOS and Windows. Use fork otherwise.
 # On UNIX platforms, one may set an environment variable to override

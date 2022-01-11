@@ -4,11 +4,7 @@
 Explore the Mandelbrot Set on the CPU or GPU using PyOpenCL.
 """
 
-import io
-import math
-import re
-import os
-import sys
+import io, re, os, sys
 import numpy as np
 
 from app.option import OPT

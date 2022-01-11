@@ -5,9 +5,8 @@ Provides the base class.
 
 __all__ = ["GRADIENT_LENGTH", "INSIDE_COLOR1", "INSIDE_COLOR2", "RADIUS", "Base"]
 
-import math
+import math, random
 import numpy as np
-import random
 
 GRADIENT_LENGTH = 260
 INSIDE_COLOR1 = (np.uint8(0x01),np.uint8(0x01),np.uint8(0x01))

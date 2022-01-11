@@ -6,8 +6,7 @@ This pre-populates OPT during import with defaults and parsed options.
 
 __all__ = ['OPT']
 
-import os
-import sys
+import os, sys
 
 from configparser import ConfigParser
 from optparse import OptionGroup, OptionParser

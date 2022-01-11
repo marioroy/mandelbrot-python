@@ -10,13 +10,9 @@ running an auto-zoom session. I'm pleasantly delighted for SimpleQueue
 itself to be nearly as fast.
 """
 
-import math
-import os
-import sys
+import math, os, struct, sys, time
 import numpy as np
 import socket as sock
-import struct
-import time
 
 from app.option import OPT
 from app.base import GRADIENT_LENGTH
