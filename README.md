@@ -28,6 +28,11 @@ $ pip3 install pyopencl  # optional, for CPU/GPU
 $ pip3 install pycuda    # optional, for GPU
 ```
 
+**Demo Folder**
+
+Non-parallel demonstrations for creating the Mandelbrot Set, apply Antialiasing,
+Gaussian Blur, and Unsharp Mask via a step-by-step approach.
+
 **Python Scripts**
 
 Rendering on the GPU requires double-precision support on the device.
