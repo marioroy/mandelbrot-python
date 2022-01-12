@@ -102,10 +102,14 @@ class Option(object):
         self.compiler_bindir = opt.compiler_bindir
 
         if opt.num_threads != 'auto':
-            os.environ['NUM_THREADS'] = str(max(1, int(opt.num_threads)))
             self.num_threads = max(1, int(opt.num_threads))
         else:
-            self.num_threads = max(1, int(os.getenv('NUM_THREADS') or os.cpu_count() - 1))
+            ncpu = int(
+                os.getenv('NUMBA_NUM_THREADS') or
+                os.getenv('NUM_THREADS') or
+                os.cpu_count() - 1
+                )
+            self.num_threads = max(1, ncpu)
 
         del opt, args
 
