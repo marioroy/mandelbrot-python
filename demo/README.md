@@ -14,7 +14,7 @@ and Unsharp Mask via a step-by-step approach.
 
 ```bash
 $ python3 ex0.py 
-     mandelbrot 7.986 seconds
+     mandelbrot 5.374 seconds
   image saved as img1.png
 ```
 
