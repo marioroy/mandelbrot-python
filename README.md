@@ -36,15 +36,15 @@ Gaussian Blur, and Unsharp Mask via a step-by-step approach.
 **Python Scripts**
 
 Rendering on the GPU requires double-precision support on the device.
-On FreeBSD, install ```pocl``` for OpenCL on the CPU. It works quite well.
-On Windows, run ```vcvars64.bat``` first (Visual Studio) for CUDA/OpenCL.
+On FreeBSD, install `pocl` for OpenCL on the CPU. It works quite well.
+On Windows, run `vcvars64.bat` first (Visual Studio) for CUDA/OpenCL.
 
 ```text
 mandel_queue.py   - Run parallel using a queue for IPC
 mandel_stream.py  - Run parallel using a socket for IPC
 mandel_parfor.py  - Run parallel using Numba's parfor loop
 mandel_ocl.py     - Run on the CPU or GPU using PyOpenCL
-mandel_cuda.py    - Run on the GPU using PyCUDA
+mandel_cuda.py    - Run on the GPU using PyCUDA (GCC 10.x max)
 mandel_kernel.py  - Run on the GPU using cuda.jit
 
 $ python3 mandel_queue.py -h
@@ -52,6 +52,17 @@ $ python3 mandel_queue.py --shortcuts
 $ python3 mandel_queue.py --config=app.ini 720p
 $ python3 mandel_queue.py --config=app.ini 720p --num-samples=3
 $ python3 mandel_queue.py --location 5
+```
+
+Until CUDA reaches full compatibility with GCC 11.x, optionally specify
+GCC 10.x or lower for the `mandel_cuda.py` demonstration. On Clear Linux,
+install the `c-extras-gcc10` bundle.
+
+```text
+$ sudo swupd bundle-add c-extras-gcc10
+
+$ python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-10
+$ python3 mandel_cuda.py --compiler-bindir=gcc-10
 ```
 
 **Auto-Zoom Destinations**
@@ -69,8 +80,8 @@ $ python3 mandel_queue.py --location 5
 # Usage
 
 Settings can be stored in a configuation file. If choosing to use a
-configuration file, copy ```app.ini``` to ```user.ini``` and use that.
-The ```user.ini``` file is ignored by git updates.
+configuration file, copy `app.ini` to `user.ini` and use that.
+The `user.ini` file is ignored by git updates.
 
 ```text
 Usage: mandel_queue.py [--config filepath [section]] [options]
@@ -96,6 +107,7 @@ Options:
 
   CUDA Options (mandel_cuda):
     --compiler-bindir  directory in which the C compiler resides
+                 also, the compiler executable name can be specified
 
   GPU Options (mandel_cuda, mandel_ocl):
     --mixed-prec=ARG   select mixed-precision flag [0,1,2]: 0
@@ -126,8 +138,8 @@ w) Up)     scroll window up
 
 **Auto zoom**
 
-Specify option ```--fast-zoom``` for fast/slow zoom mode.
-Specify option ```--smooth-bench``` for smooth/bench mode.
+Specify option `--fast-zoom` for fast/slow zoom mode.
+Specify option `--smooth-bench` for smooth/bench mode.
 Press any key to end auto zoom.
 
 ```text

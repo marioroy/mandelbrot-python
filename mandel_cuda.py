@@ -64,7 +64,10 @@ class App(WindowPygame):
             '-DMIXED_PREC{}'.format(self.mixed_prec) ]
 
         if len(OPT.compiler_bindir) > 0:
-            options.extend(['--compiler-bindir', OPT.compiler_bindir])
+            options.insert(0, '--compiler-bindir={}'.format(OPT.compiler_bindir))
+        elif os.path.exists('/usr/bin/gcc') and os.path.exists('/usr/bin/gcc-10'):
+            # Prefer GCC 10 as CUDA is not fully compatible with GCC 11.x.
+            options.insert(0, '--compiler-bindir=gcc-10')
 
         try:
             self.cuda_prg = SourceModule(KERNEL_SOURCE, options=options)
