@@ -1,5 +1,7 @@
 # Mandelbrot Set Explorer
 
+*This is no longer actively maintained and kept here for reference.*
+
 A demonstration for exploring the [Mandelbrot Set](https://en.wikipedia.org/wiki/Mandelbrot_set)
 using Python. Similarly, CUDA and OpenCL solutions for comparison.
 
