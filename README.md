@@ -20,7 +20,7 @@ sudo apt install python3-numba python3-pygame
 sudo apt install python3-pyopencl pocl-opencl-icd
 ```
 
-For NVIDIA graphics, optionally install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) 11.1.1; Linux x86_64 - Ubuntu 20.04 - runfile (local). Do not install later than 11.1.1 or the `mandel_kernel.py` demonstration will not work. The reason is the `python3-numba 0.48.0` package supports max CUDA Toolkit 11.1.1.
+For NVIDIA graphics, optionally install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) 11.1.1; Linux x86_64 - Ubuntu 20.04 - runfile (local). Do not install later than 11.1.1 or the `mandel_kernel.py` demonstration will not work, due to using `python3-numba` 0.48.0.
 
 ```bash
 cd ~/Downloads
