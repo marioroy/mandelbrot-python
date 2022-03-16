@@ -31,6 +31,9 @@ sudo sh cuda_11.1.1_455.32.00_linux.run \
   --toolkit --installpath=/opt/cuda-11.1.1 \
   --no-opengl-libs --no-drm --override --silent
 
+# remove OpenCL libs as they conflict with ocl-icd-libopencl1 package
+sudo rm -f /opt/cuda-11.1.1/targets/x86_64-linux/lib/libOpenCL.so*
+
 sudo ldconfig
 
 CUDA_ROOT=/opt/cuda-11.1.1 PATH=$PATH:$CUDA_ROOT/bin \
