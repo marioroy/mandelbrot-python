@@ -1,41 +1,60 @@
 # Mandelbrot Set Explorer
 
-*This is no longer actively maintained and kept here for reference.*
-
-A demonstration for exploring the [Mandelbrot Set](https://en.wikipedia.org/wiki/Mandelbrot_set)
-using Python. Similarly, CUDA and OpenCL solutions for comparison.
+A demonstration for exploring the [Mandelbrot Set](https://en.wikipedia.org/wiki/Mandelbrot_set) using Python. Similarly, CUDA and OpenCL solutions for comparison.
 
 <p align="center">
   <img src="../assets/mandelbrot.png?raw=true" alt="Mandelbrot Set"/>
 </p>
 
-**Requirements and Installation**
+## Requirements and Installation
 
-This requires Python 3.6+ minimally, Numba, Numpy, and Pygame.
-The Numba installion pulls Numpy specific to the Numba release.
-Optionally, install Pyopencl and/or Pycuda for running on the GPU.
+This requires Python 3.6+ minimally, Numba, Numpy, and Pygame. The Numba installion pulls Numpy specific to the Numba release. Optionally, install Pyopencl and/or Pycuda for running on the GPU.
 
-Development was done in a Linux environment. However, you will
-be pleased to know that testing was done on FreeBSD, Linux, macOS,
-and Microsoft Windows.
+Development was done in a Linux environment. However, you will be pleased to know that testing was done on FreeBSD, Linux, macOS, and Microsoft Windows.
+
+**Ubuntu Linux 20.04.4**
 
 ```bash
+sudo apt update
+sudo apt install python3-numba python3-pygame
+sudo apt install python3-pyopencl pocl-opencl-icd
+```
+
+For NVIDIA graphics, optionally install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) 11.1.1; Linux x86_64 - Ubuntu 20.04 - runfile (local). Do not install later than 11.1.1 or the `mandel_kernel.py` demonstration will not work. The reason is the `python3-numba 0.48.0` package supports max CUDA Toolkit 11.1.1.
+
+```bash
+cd ~/Downloads
+
+wget https://developer.download.nvidia.com/compute/cuda/11.1.1/local_installers/cuda_11.1.1_455.32.00_linux.run
+
+sudo sh cuda_11.1.1_455.32.00_linux.run \
+  --toolkit --installpath=/opt/cuda-11.1.1 \
+  --no-opengl-libs --no-drm --override --silent
+
+sudo ldconfig
+
+CUDA_ROOT=/opt/cuda-11.1.1 PATH=$PATH:$CUDA_ROOT/bin \
+  pip3 install --user pycuda
+
+# update ~/.profile so that it can find nvcc
+export PATH=$PATH:/opt/cuda-11.1.1/bin
+
+# log out and log in; check nvcc is in your path
+which nvcc
+```
+
+**Instructions using PIP**
+
+```bash
+pip3 install --user numba pygame
+pip3 install --user pyopencl  # optional, for CPU/GPU
+pip3 install --user pycuda    # optional, for NVIDIA GPU
+
 # optional packages if building numba from source
-$ pip3 install icc_rt intel_openmp tbb tbb4py
+pip3 install --user icc_rt intel_openmp tbb tbb4py
 ```
 
-```bash
-$ pip3 install numba pygame
-$ pip3 install pyopencl  # optional, for CPU/GPU
-$ pip3 install pycuda    # optional, for GPU
-```
-
-**Demo Folder**
-
-Non-parallel demonstrations for creating the Mandelbrot Set, apply Anti-Aliasing,
-Gaussian Blur, and Unsharp Mask via a step-by-step approach.
-
-**Python Scripts**
+## Python Scripts
 
 Rendering on the GPU requires double-precision support on the device.
 On FreeBSD, install `pocl` for OpenCL on the CPU. It works quite well.
@@ -200,6 +219,12 @@ and renders the image.
 9)  set scroll factor to 0.9x width or height
 0)  set scroll factor to 1.0x width or height
 ```
+
+# Demo Folder
+
+The demo folder contains non-parallel demonstrations for creating the
+Mandelbrot Set, apply Anti-Aliasing, Gaussian Blur, and Unsharp Mask
+via a step-by-step approach.
 
 # Acknowledgements
 
