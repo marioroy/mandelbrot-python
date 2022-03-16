@@ -16,6 +16,7 @@ Development was done in a Linux environment. However, you will be pleased to kno
 
 ```bash
 sudo apt update
+sudo apt install build-essential
 sudo apt install python3-numba python3-pygame
 sudo apt install python3-pyopencl pocl-opencl-icd
 ```
@@ -69,11 +70,11 @@ mandel_ocl.py     - Run on the CPU or GPU using PyOpenCL
 mandel_cuda.py    - Run on the GPU using PyCUDA (GCC 10.x max)
 mandel_kernel.py  - Run on the GPU using cuda.jit
 
-$ python3 mandel_queue.py -h
-$ python3 mandel_queue.py --shortcuts
-$ python3 mandel_queue.py --config=app.ini 720p
-$ python3 mandel_queue.py --config=app.ini 720p --num-samples=3
-$ python3 mandel_queue.py --location 5
+python3 mandel_queue.py -h
+python3 mandel_queue.py --shortcuts
+python3 mandel_queue.py --config=app.ini 720p
+python3 mandel_queue.py --config=app.ini 720p --num-samples=3
+python3 mandel_queue.py --location 5
 ```
 
 Until CUDA reaches full compatibility with GCC 11.x, optionally specify
@@ -81,10 +82,10 @@ GCC 10.x or lower for the `mandel_cuda.py` demonstration. On Clear Linux,
 install the `c-extras-gcc10` bundle.
 
 ```text
-$ sudo swupd bundle-add c-extras-gcc10
+sudo swupd bundle-add c-extras-gcc10
 
-$ python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-10
-$ python3 mandel_cuda.py --compiler-bindir=gcc-10
+python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-10
+python3 mandel_cuda.py --compiler-bindir=gcc-10
 ```
 
 # Usage
