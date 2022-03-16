@@ -87,18 +87,6 @@ $ python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-10
 $ python3 mandel_cuda.py --compiler-bindir=gcc-10
 ```
 
-**Auto-Zoom Destinations**
-
-<p align="center">
-  <img src="../assets/locations.png?raw=true" alt="Auto-Zoom Locations"/>
-</p>
-
-**Color Schemes**
-
-<p align="center">
-  <img src="../assets/colorschemes.png?raw=true" alt="Color Schemes"/>
-</p>
-
 # Usage
 
 Settings can be stored in a configuation file. If choosing to use a
@@ -140,6 +128,18 @@ Values exceeding the range specification are silently clipped to
 the respective minimum or maximum value. The number of iterations
 is computed dynamically based on the performance level
 (lower equals more iterations).
+
+**Auto-Zoom Destinations**
+
+<p align="center">
+  <img src="../assets/locations.png?raw=true" alt="Auto-Zoom Locations"/>
+</p>
+
+**Color Schemes**
+
+<p align="center">
+  <img src="../assets/colorschemes.png?raw=true" alt="Color Schemes"/>
+</p>
 
 # Keyboard Shortcuts
 
