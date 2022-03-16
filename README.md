@@ -24,7 +24,6 @@ For NVIDIA graphics, optionally install [CUDA Toolkit](https://developer.nvidia.
 
 ```bash
 cd ~/Downloads
-
 wget https://developer.download.nvidia.com/compute/cuda/11.1.1/local_installers/cuda_11.1.1_455.32.00_linux.run
 
 sudo sh cuda_11.1.1_455.32.00_linux.run \
@@ -43,7 +42,9 @@ export PATH=$PATH:/opt/cuda-11.1.1/bin
 which nvcc
 ```
 
-**Instructions using PIP**
+**PIP Instructions**
+
+On macOS, install `python@3.9` and `tbb` via brew.
 
 ```bash
 pip3 install --user numba pygame
