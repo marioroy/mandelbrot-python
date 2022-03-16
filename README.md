@@ -27,6 +27,7 @@ For NVIDIA graphics, optionally install [CUDA Toolkit](https://developer.nvidia.
 cd ~/Downloads
 wget https://developer.download.nvidia.com/compute/cuda/11.1.1/local_installers/cuda_11.1.1_455.32.00_linux.run
 
+# install CUDA Toolkit
 sudo sh cuda_11.1.1_455.32.00_linux.run \
   --toolkit --installpath=/opt/cuda-11.1.1 \
   --no-opengl-libs --no-drm --override --silent
@@ -34,15 +35,17 @@ sudo sh cuda_11.1.1_455.32.00_linux.run \
 # remove OpenCL libs as they conflict with ocl-icd-libopencl1 package
 sudo rm -f /opt/cuda-11.1.1/targets/x86_64-linux/lib/libOpenCL.so*
 
+# update dynamic linker cache
 sudo ldconfig
 
+# install PyCUDA
 CUDA_ROOT=/opt/cuda-11.1.1 PATH=$PATH:$CUDA_ROOT/bin \
   pip3 install --user pycuda
 
 # update ~/.profile so that it can find nvcc
 export PATH=$PATH:/opt/cuda-11.1.1/bin
 
-# log out and log in; check nvcc is in your path
+# log out and log in; check that nvcc is in your path
 which nvcc
 ```
 
