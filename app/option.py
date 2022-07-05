@@ -61,7 +61,7 @@ class Option(object):
         p.add_option_group(g)
 
         g = OptionGroup(p, "GPU Options (mandel_cuda, mandel_ocl)")
-        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2]: 0")
+        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2]: 2")
         _opt(g, "--fma", "int", "select fused-multiply-add flag [0,1]: 0")
         p.add_option_group(g)
 
@@ -69,7 +69,7 @@ class Option(object):
             width=800, height=500, center_x=-0.625, center_y=0.0, location=0,
             zoom_scale=0.95, num_samples=2, perf_level=25, color_scheme=1,
             fast_zoom=1, smooth_bench=0, num_threads='auto', compiler_bindir='',
-            mixed_prec=0, fma=0 )
+            mixed_prec=2, fma=0 )
 
         # optionally, override defaults from a config file
         self.__handle_config(p)

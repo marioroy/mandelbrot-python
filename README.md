@@ -127,7 +127,7 @@ Options:
                  also, the compiler executable name can be specified
 
   GPU Options (mandel_cuda, mandel_ocl):
-    --mixed-prec=ARG   select mixed-precision flag [0,1,2]: 0
+    --mixed-prec=ARG   select mixed-precision flag [0,1,2]: 2
     --fma=ARG          select fused-multiply-add flag [0,1]: 0
 ```
 
