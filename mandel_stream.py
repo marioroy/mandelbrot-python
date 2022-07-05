@@ -56,8 +56,7 @@ class App(WindowPygame):
         self.temp2 = self.temp2.reshape((h, w, 3))
 
         # Spawn workers.
-        blur_num_threads = max(1, min(self.num_threads, self.divide_up(self.height, 20)))
-        blur_num_threads = max(1, min(blur_num_threads, os.cpu_count() // 2))
+        blur_num_threads = max(1, min(self.num_threads, self.divide_up(h, 20)))
 
         self.barrier_blur = Barrier(blur_num_threads)
         self.barrier_blur2 = Barrier(blur_num_threads + 1)

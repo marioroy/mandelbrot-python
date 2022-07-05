@@ -52,9 +52,8 @@ class App(WindowPygame):
 
         # Set chunksize for the CPU.
         blur_num_threads = max(1, min(NUM_THREADS, self.divide_up(h, 20)))
-        blur_num_threads = max(1, min(blur_num_threads, os.cpu_count() // 2))
-        self.chunksize_h = self.divide_up(self.height, blur_num_threads)
-        self.chunksize_w = self.divide_up(self.width, blur_num_threads)
+        self.chunksize_h = self.divide_up(h, blur_num_threads)
+        self.chunksize_w = self.divide_up(w, blur_num_threads)
 
         # Instantiate the Window interface.
         super().init()

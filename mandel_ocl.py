@@ -65,8 +65,7 @@ class App(WindowPygame):
 
         # Set chunksize for the CPU.
         blur_num_threads = max(1, min(NUM_THREADS, self.divide_up(h, 20)))
-        blur_num_threads = max(1, min(blur_num_threads, os.cpu_count() // 2))
-        self.chunksize_h = self.divide_up(self.height, blur_num_threads)
+        self.chunksize_h = self.divide_up(h, blur_num_threads)
 
         print("[{:>3}] color scheme {}".format(self.level, self.color_scheme))
 
@@ -145,6 +144,7 @@ class App(WindowPygame):
             np.float64(self.min_x), np.float64(self.min_y),
             np.float64(step_x), np.float64(step_y), self.d_temp, self.d_colors,
             np.int32(iters), np.int32(self.width), np.int32(self.height) )
+
         cl_queue.finish()
 
         if self.num_samples == 1:
@@ -160,6 +160,7 @@ class App(WindowPygame):
             np.float64(step_x), np.float64(step_y), self.d_output, self.d_temp,
             self.d_colors, np.int32(iters), np.int32(self.width),
             np.int32(self.height), np.int16(self.num_samples), self.d_offset )
+
         cl_queue.finish()
 
         # Image sharpening.
@@ -173,18 +174,21 @@ class App(WindowPygame):
                 cl_queue, (gDimX, gDimY), (bDimX, bDimY),
                 self.d_matrix, self.d_output, self.d_temp2,
                 np.int32(self.width), np.int32(self.height) )
+
             cl_queue.finish()
 
             cl_prg.vertical_gaussian_blur_cpu(
                 cl_queue, (gDimX, gDimY), (bDimX, bDimY),
                 self.d_matrix, self.d_temp2, self.d_output,
                 np.int32(self.width), np.int32(self.height) )
+
             cl_queue.finish()
 
             cl_prg.unsharp_mask_cpu(
                 cl_queue, (gDimX, gDimY), (bDimX, bDimY),
                 self.d_temp, self.d_output,
                 np.int32(self.width), np.int32(self.height) )
+
             cl_queue.finish()
 
         else:
@@ -197,20 +201,22 @@ class App(WindowPygame):
                 cl_queue, (gDimX, gDimY), (bDimX, bDimY),
                 self.d_matrix, self.d_output, self.d_temp2,
                 np.int32(self.width), np.int32(self.height) )
+
             cl_queue.finish()
 
             cl_prg.vertical_gaussian_blur(
                 cl_queue, (gDimX, gDimY), (bDimX, bDimY),
                 self.d_matrix, self.d_temp2, self.d_output,
                 np.int32(self.width), np.int32(self.height) )
+
             cl_queue.finish()
 
             cl_prg.unsharp_mask(
                 cl_queue, (gDimX, gDimY), (bDimX, bDimY),
                 self.d_temp, self.d_output,
                 np.int32(self.width), np.int32(self.height) )
-            cl_queue.finish()
 
+            cl_queue.finish()
             cl.enqueue_copy(cl_queue, self.output, self.d_output).wait()
 
         self.update_window()
