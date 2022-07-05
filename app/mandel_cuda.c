@@ -41,8 +41,8 @@
 #endif
 
 #define ESCAPE_RADIUS_2 (float) (RADIUS * RADIUS)
-#define INSIDE_COLOR1 make_uchar4(0x01,0x01,0x01,0xff)
-#define INSIDE_COLOR2 make_uchar4(0x8d,0x02,0x1f,0xff)
+#define INSIDE_COLOR1 make_uchar3(0x01,0x01,0x01)
+#define INSIDE_COLOR2 make_uchar3(0x8d,0x02,0x1f)
 
 #if !defined(M_LN2)
 #define M_LN2 0.69314718055994530942  // log_e 2
@@ -62,13 +62,13 @@ typedef union {
 
 // functions
 
-__device__ uchar4 get_color(
+__device__ uchar3 get_color(
     const short *colors, const double zreal_sqr,
     const double zimag_sqr, const int n )
 {
     double normz = sqrt(zreal_sqr + zimag_sqr);
     double mu;
-    uchar4 c;
+    uchar3 c;
 
     if (RADIUS > 2.0)
         mu = n + (log(2*log(RADIUS)) - log(log(normz))) / M_LN2;
@@ -85,13 +85,12 @@ __device__ uchar4 get_color(
     c.x = dx * (colors[j_mu+0] - colors[i_mu+0]) + colors[i_mu+0];
     c.y = dx * (colors[j_mu+1] - colors[i_mu+1]) + colors[i_mu+1];
     c.z = dx * (colors[j_mu+2] - colors[i_mu+2]) + colors[i_mu+2];
-    c.w = 0xff;
 
     return c;
 }
 
 __device__ bool check_colors(
-    const uchar4 c1, const uchar4 c2 )
+    const uchar3 c1, const uchar3 c2 )
 {
     if (abs((short)c2.x - c1.x) > 8) return true;
     if (abs((short)c2.y - c1.y) > 8) return true;
@@ -100,7 +99,7 @@ __device__ bool check_colors(
     return false;
 }
 
-__device__ uchar4 mandel1(
+__device__ uchar3 mandel1(
     const short *colors, const double creal, const double cimag,
     const int max_iters )
 {
@@ -186,7 +185,7 @@ __device__ uchar4 mandel1(
     return INSIDE_COLOR1;
 }
 
-__device__ uchar4 mandel2(
+__device__ uchar3 mandel2(
     const short *colors, const double creal, const double cimag,
     const int max_iters )
 {
@@ -241,33 +240,33 @@ __device__ uchar4 mandel2(
 
 __global__ void mandelbrot1(
     const double min_x, const double min_y, const double step_x,
-    const double step_y, uchar4 *temp, const short *colors,
+    const double step_y, uchar3 *temp, const short *colors,
     const int max_iters, const int width, const int height )
 {
-    const int pos_y = blockDim.y * blockIdx.y + threadIdx.y;
-    const int pos_x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int pos_y = __umul24(blockDim.y, blockIdx.y) + threadIdx.y;
+    const int pos_x = __umul24(blockDim.x, blockIdx.x) + threadIdx.x;
 
     if (pos_y >= height || pos_x >= width) return;
 
     double cimag = min_y + (pos_y * step_y);
     double creal = min_x + (pos_x * step_x);
 
-    temp[width * pos_y + pos_x] = mandel1(colors, creal, cimag, max_iters);
+    temp[__umul24(width, pos_y) + pos_x] = mandel1(colors, creal, cimag, max_iters);
 }
 
 __global__ void mandelbrot2(
     const double min_x, const double min_y, const double step_x,
-    const double step_y, uchar4 *output, const uchar4 *temp,
+    const double step_y, uchar3 *output, const uchar3 *temp,
     const short *colors, const int max_iters, const int width,
     const int height, const short aafactor, const double *offset )
 {
-    const int pos_y = blockDim.y * blockIdx.y + threadIdx.y;
-    const int pos_x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int pos_y = __umul24(blockDim.y, blockIdx.y) + threadIdx.y;
+    const int pos_x = __umul24(blockDim.x, blockIdx.x) + threadIdx.x;
 
     if (pos_y >= height || pos_x >= width) return;
 
-    int pixel = width * pos_y + pos_x;
-    uchar4 c1 = temp[pixel];
+    int pixel = __umul24(width, pos_y) + pos_x;
+    uchar3 c1 = temp[pixel];
     bool count = false;
 
     // Skip AA for colors within tolerance.
@@ -298,8 +297,8 @@ __global__ void mandelbrot2(
     const int aaarea = aafactor * aafactor;
     const int aaarea2 = (aaarea - 1) * 2;
     double creal, cimag;
-    int4 c = make_int4(c1.x, c1.y, c1.z, 0xff);
-    uchar4 color;
+    int3 c = make_int3(c1.x, c1.y, c1.z);
+    uchar3 color;
 
     double zreal, zimag;
     udouble_t zreal_sqr, zimag_sqr;
@@ -374,21 +373,21 @@ __global__ void mandelbrot2(
         c.z += color.z;
     }
 
-    output[pixel] = make_uchar4(c.x/aaarea, c.y/aaarea, c.z/aaarea, 0xff);
+    output[pixel] = make_uchar3(c.x/aaarea, c.y/aaarea, c.z/aaarea);
 }
 
 __global__ void horizontal_gaussian_blur(
-    const float *matrix, const uchar4 *src,
-    uchar4 *dst, const int width, const int height )
+    const float *matrix, const uchar3 *src,
+    uchar3 *dst, const int width, const int height )
 {
-    const int y = blockDim.y * blockIdx.y + threadIdx.y;
-    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = __umul24(blockDim.y, blockIdx.y) + threadIdx.y;
+    const int x = __umul24(blockDim.x, blockIdx.x) + threadIdx.x;
 
     if (y >= height || x >= width) return;
     const int cols = MATRIX_LENGTH >> 1;
 
     // Gaussian blur optimized 1-D loop.
-    uchar4 rgb = src[y * width + x], rgb2;
+    uchar3 rgb = src[__umul24(y, width) + x], rgb2;
     float wgt = matrix[cols];
     float r = wgt * rgb.x + 0.5f;
     float g = wgt * rgb.y + 0.5f;
@@ -399,12 +398,12 @@ __global__ void horizontal_gaussian_blur(
         ix = x + col;
         if (ix < 0)
             ix = 0;
-        rgb = src[y * width + ix];
+        rgb = src[__umul24(y, width) + ix];
 
         ix = x + col + col2;
         if (ix >= width)
             ix = width - 1;
-        rgb2 = src[y * width + ix];
+        rgb2 = src[__umul24(y, width) + ix];
 
         wgt = matrix[cols + col];
         r += wgt * ((short)rgb.x + rgb2.x);
@@ -413,21 +412,21 @@ __global__ void horizontal_gaussian_blur(
         col2 -= 2;
     }
 
-    dst[y * width + x] = make_uchar4(r, g, b, 0xff);
+    dst[__umul24(y, width) + x] = make_uchar3(r, g, b);
 }
 
 __global__ void vertical_gaussian_blur(
-    const float *matrix, const uchar4 *src,
-    uchar4 *dst, const int width, const int height )
+    const float *matrix, const uchar3 *src,
+    uchar3 *dst, const int width, const int height )
 {
-    const int y = blockDim.y * blockIdx.y + threadIdx.y;
-    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = __umul24(blockDim.y, blockIdx.y) + threadIdx.y;
+    const int x = __umul24(blockDim.x, blockIdx.x) + threadIdx.x;
 
     if (y >= height || x >= width) return;
     const int cols = MATRIX_LENGTH >> 1;
 
     // Gaussian blur optimized 1-D loop.
-    uchar4 rgb = src[y * width + x], rgb2;
+    uchar3 rgb = src[__umul24(y, width) + x], rgb2;
     float wgt = matrix[cols];
     float r = wgt * rgb.x + 0.5f;
     float g = wgt * rgb.y + 0.5f;
@@ -438,12 +437,12 @@ __global__ void vertical_gaussian_blur(
         iy = y + col;
         if (iy < 0)
             iy = 0;
-        rgb = src[iy * width + x];
+        rgb = src[__umul24(iy, width) + x];
 
         iy = y + col + col2;
         if (iy >= height)
             iy = height - 1;
-        rgb2 = src[iy * width + x];
+        rgb2 = src[__umul24(iy, width) + x];
 
         wgt = matrix[cols + col];
         r += wgt * ((short)rgb.x + rgb2.x);
@@ -452,23 +451,23 @@ __global__ void vertical_gaussian_blur(
         col2 -= 2;
     }
 
-    dst[y * width + x] = make_uchar4(r, g, b, 0xff);
+    dst[__umul24(y, width) + x] = make_uchar3(r, g, b);
 }
 
 __global__ void unsharp_mask(
-    const uchar4 *src, uchar4 *dst, const int width, const int height )
+    const uchar3 *src, uchar3 *dst, const int width, const int height )
 {
-    const int y = blockDim.y * blockIdx.y + threadIdx.y;
-    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = __umul24(blockDim.y, blockIdx.y) + threadIdx.y;
+    const int x = __umul24(blockDim.x, blockIdx.x) + threadIdx.x;
 
     if (y >= height || x >= width) return;
 
-    const int pixel = y * width + x;
+    const int pixel = __umul24(y, width) + x;
     const float percent = 65.0f / 100;
     const int threshold = 0;
 
-    uchar4 norm_pixel = src[pixel];
-    uchar4 blur_pixel = dst[pixel];
+    uchar3 norm_pixel = src[pixel];
+    uchar3 blur_pixel = dst[pixel];
     int r, g, b, diff;
 
     // Compare in/out pixels, apply sharpening.
@@ -487,6 +486,6 @@ __global__ void unsharp_mask(
         ? min(255, max(0, (int)(diff * percent + norm_pixel.z)))
         : norm_pixel.z;
 
-    dst[pixel] = make_uchar4(r, g, b, 0xff);
+    dst[pixel] = make_uchar3(r, g, b);
 }
 

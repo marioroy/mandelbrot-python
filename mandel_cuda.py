@@ -46,9 +46,9 @@ class App(WindowPygame):
         self.init_offset()
 
         h, w = self.height, self.width
-        self.output = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_uint32)
-        self.temp = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_uint32)
-        self.temp2 = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_uint32)
+        self.output = np.empty((h, w, 3), dtype=np.ctypeslib.ctypes.c_uint8)
+        self.temp = np.empty((h, w, 3), dtype=np.ctypeslib.ctypes.c_uint8)
+        self.temp2 = np.empty((h, w, 3), dtype=np.ctypeslib.ctypes.c_uint8)
 
         print("[{:>3}] color scheme {}".format(self.level, self.color_scheme))
 
@@ -108,6 +108,7 @@ class App(WindowPygame):
             np.float64(step_x), np.float64(step_y), self.d_temp, self.d_colors,
             np.int32(iters), np.int32(self.width), np.int32(self.height),
             block=(bDimX,bDimY,1), grid=(gDimX,gDimY), shared=0 )
+
         cuda.Context.synchronize()
 
         if self.num_samples == 1:
@@ -123,6 +124,7 @@ class App(WindowPygame):
             self.d_colors, np.int32(iters), np.int32(self.width),
             np.int32(self.height), np.int16(self.num_samples), self.d_offset,
             block=(bDimX,bDimY,1), grid=(gDimX,gDimY), shared=0 )
+
         cuda.Context.synchronize()
 
         # Image sharpening.
@@ -136,6 +138,7 @@ class App(WindowPygame):
             self.d_matrix, self.d_output, self.d_temp2,
             np.int32(self.width), np.int32(self.height),
             block=(bDimX,bDimY,1), grid=(gDimX,gDimY), shared=0 )
+
         cuda.Context.synchronize()
 
         cuda_func = self.cuda_prg.get_function("vertical_gaussian_blur")
@@ -143,6 +146,7 @@ class App(WindowPygame):
             self.d_matrix, self.d_temp2, self.d_output,
             np.int32(self.width), np.int32(self.height),
             block=(bDimX,bDimY,1), grid=(gDimX,gDimY), shared=0 )
+
         cuda.Context.synchronize()
 
         cuda_func = self.cuda_prg.get_function("unsharp_mask")
@@ -150,8 +154,8 @@ class App(WindowPygame):
             self.d_temp, self.d_output,
             np.int32(self.width), np.int32(self.height),
             block=(bDimX,bDimY,1), grid=(gDimX,gDimY), shared=0 )
-        cuda.Context.synchronize()
 
+        cuda.Context.synchronize()
         cuda.memcpy_dtoh(self.output, self.d_output)
         self.update_window()
 
