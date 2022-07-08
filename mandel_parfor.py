@@ -23,8 +23,8 @@ from app.option import OPT
 from app.base import GRADIENT_LENGTH
 from app.interface import WindowPygame
 
-# Silently limit the number of threads to os.cpu_count() - 1.
-NUM_THREADS = min(os.cpu_count() - 1, max(1, OPT.num_threads))
+# Silently limit the number of threads to os.cpu_count().
+NUM_THREADS = min(os.cpu_count(), max(1, OPT.num_threads))
 os.environ['NUMBA_NUM_THREADS'] = str(NUM_THREADS)
 
 from app.mandel_parfor import \
