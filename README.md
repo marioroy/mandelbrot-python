@@ -49,11 +49,13 @@ export PATH=$PATH:/opt/cuda-11.1.1/bin
 which nvcc
 ```
 
-**Anaconda instructions**
+**Anaconda/Miniconda instructions**
 
 This involves `pip` for packages not available in the main channel.
 
 ```bash
+conda install tbb   # not installed by default in miniconda
+
 conda install -c numba llvmlite numba   # or specific versions
 conda install -c numba llvmlite==0.39.0 numba==0.56.0
 
