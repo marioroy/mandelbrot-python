@@ -60,7 +60,8 @@ conda install -c numba llvmlite==0.39.0 numba==0.56.0
 pip install pygame
 ```
 
-Install dependencies for `pyopencl` and `pycuda`.
+Install dependencies for `pyopencl` and `pycuda`. It requires OpenCL
+and CUDA development files on the system to build successfully.
 
 ```bash
 conda install appdirs platformdirs MarkupSafe mako typing-extensions
