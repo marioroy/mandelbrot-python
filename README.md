@@ -49,6 +49,26 @@ export PATH=$PATH:/opt/cuda-11.1.1/bin
 which nvcc
 ```
 
+**Anaconda Instructions**
+
+This involves `pip` for packages not available in the main channel.
+
+```bash
+conda install -c numba llvmlite numba   # or specific versions
+conda install -c numba llvmlite==0.39.0 numba==0.56.0
+
+pip install pygame
+```
+
+Install dependencies for `pyopencl` and `pycuda`.
+
+```bash
+conda install appdirs platformdirs MarkupSafe mako typing-extensions
+
+pip install pytools pyopencl  # optional, for CPU/GPU
+pip install pytools pycuda    # optional, for NVIDA GPU
+```
+
 **PIP Instructions**
 
 On macOS, install `python@3.9` and `tbb` via brew.
