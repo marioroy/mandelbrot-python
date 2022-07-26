@@ -49,7 +49,7 @@ export PATH=$PATH:/opt/cuda-11.1.1/bin
 which nvcc
 ```
 
-**Anaconda Instructions**
+**Anaconda instructions**
 
 This involves `pip` for packages not available in the main channel.
 
@@ -70,7 +70,7 @@ pip install pytools pyopencl  # optional, for CPU/GPU
 pip install pytools pycuda    # optional, for NVIDA GPU
 ```
 
-**PIP Instructions**
+**Pip instructions**
 
 On macOS, install `python@3.9` and `tbb` via brew.
 
@@ -115,7 +115,7 @@ python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-10
 python3 mandel_cuda.py --compiler-bindir=gcc-10
 ```
 
-# Usage
+## Usage
 
 Settings can be stored in a configuation file. If choosing to use a
 configuration file, copy `app.ini` to `user.ini` and use that.
@@ -157,19 +157,19 @@ the respective minimum or maximum value. The number of iterations
 is computed dynamically based on the performance level
 (lower equals more iterations).
 
-**Auto-Zoom Destinations**
+**Auto-zoom destinations**
 
 <p align="center">
   <img src="../assets/locations.png?raw=true" alt="Auto-Zoom Locations"/>
 </p>
 
-**Color Schemes**
+**Color schemes**
 
 <p align="center">
   <img src="../assets/colorschemes.png?raw=true" alt="Color Schemes"/>
 </p>
 
-# Keyboard Shortcuts
+## Keyboard Shortcuts
 
 Most all options are accessible via a keyboard shortcut.
 Zooming does not exceed double-precision limit.
@@ -249,13 +249,13 @@ and renders the image.
 0)  set scroll factor to 1.0x width or height
 ```
 
-# Demo Folder
+## Demo Folder
 
 The demo folder contains non-parallel demonstrations for creating the
 Mandelbrot Set, apply Anti-Aliasing, Gaussian Blur, and Unsharp Mask
 via a step-by-step approach.
 
-# Acknowledgements
+## Acknowledgements
 
 Bright qualitative colour scheme (courtesy of Paul Tol). I also tried
 coloring using a slight modification of Bernstein polynomials.
