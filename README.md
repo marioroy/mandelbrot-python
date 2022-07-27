@@ -72,19 +72,6 @@ pip install pytools pyopencl  # optional, for CPU/GPU
 pip install pytools pycuda    # optional, for NVIDA GPU
 ```
 
-**Pip instructions**
-
-On macOS, install `python@3.9` and `tbb` via brew.
-
-```bash
-pip3 install --user numba pygame
-pip3 install --user pyopencl  # optional, for CPU/GPU
-pip3 install --user pycuda    # optional, for NVIDIA GPU
-
-# optional packages if building numba from source
-pip3 install --user icc_rt intel_openmp tbb tbb4py
-```
-
 ## Python Scripts
 
 Rendering on the GPU requires double-precision support on the device.
