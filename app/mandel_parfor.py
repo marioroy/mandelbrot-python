@@ -7,10 +7,7 @@ import numpy as np
 
 from .mandel_common import get_color, check_colors, mandel1, mandel2
 try:
-    # Import set_parallel_chunksize if available.
-    #   https://github.com/IntelLabs/numba/tree/autochunk
-    # On my system, this branch has no effect with the omp layer.
-    # Thus use the tbb layer (i.e. NUMBA_THREADING_LAYER=tbb).
+    # Import set_parallel_chunksize if available (Numba 0.56.0).
     from numba import njit, float32, uint8, int16, prange, set_parallel_chunksize
 except ImportError:
     from numba import njit, float32, uint8, int16, prange
