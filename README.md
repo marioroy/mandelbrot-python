@@ -56,7 +56,7 @@ This involves `pip` for packages not available in the main channel.
 ```bash
 conda install tbb   # not installed by default in miniconda
 
-conda install -c numba llvmlite numba   # or specific versions
+conda install -c numba llvmlite numba   # or specific version
 conda install -c numba llvmlite==0.39.0 numba==0.56.0
 
 pip install pygame
