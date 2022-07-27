@@ -49,7 +49,7 @@ export PATH=$PATH:/opt/cuda-11.1.1/bin
 which nvcc
 ```
 
-**Anaconda / Miniconda**
+**[Anaconda](https://docs.anaconda.com/anaconda/install/index.html) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)**
 
 This involves `pip` for packages not available in the main channel.
 
