@@ -8,6 +8,14 @@ __all__ = ["GRADIENT_LENGTH", "INSIDE_COLOR1", "INSIDE_COLOR2", "RADIUS", "Base"
 import math, random
 import numpy as np
 
+# Silent UserWarnings, since numpy 1.22:
+# https://github.com/numpy/numpy/issues/20895
+# The value of the smallest subnormal for <class 'numpy.float32'> type is zero.
+# The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+
+np.finfo(np.dtype("float32"))
+np.finfo(np.dtype("float64"))
+
 GRADIENT_LENGTH = 260
 INSIDE_COLOR1 = (np.uint8(0x01),np.uint8(0x01),np.uint8(0x01))
 INSIDE_COLOR2 = (np.uint8(0x8d),np.uint8(0x02),np.uint8(0x1f))

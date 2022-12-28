@@ -54,10 +54,11 @@ which nvcc
 This involves `pip` for packages not available in the main channel.
 
 ```bash
-conda install tbb   # not installed by default in miniconda
+conda install tbb==2021.5.0   # not installed by default in miniconda
+conda install tbb-devel==2021.5.0
 
 conda install -c numba llvmlite numba   # or specific version
-conda install -c numba llvmlite==0.39.0 numba==0.56.0
+conda install -c numba llvmlite==0.39.1 numba==0.56.4
 
 pip install pygame
 ```
@@ -69,7 +70,25 @@ and CUDA development files on the system to build successfully.
 conda install appdirs platformdirs MarkupSafe mako typing-extensions
 
 pip install pytools pyopencl  # optional, for CPU/GPU
-pip install pytools pycuda    # optional, for NVIDA GPU
+pip install pytools pycuda    # optional, for NVIDIA GPU
+```
+
+The `pycuda` module may require manual installation. Adjust the root path accordingly.
+
+```bash
+export CUDA_ROOT=/opt/cuda
+export CUDA_INC_DIR=$CUDA_ROOT/include
+export PATH=$PATH:$CUDA_ROOT/bin
+
+cd ~/Downloads
+
+# Obtain pycuda file from pypi.org
+tar xf pycuda-2022.2.2.tar.gz
+cd pycuda-2022.2.2
+
+./configure.py
+make -j
+make install
 ```
 
 ## Python Scripts
@@ -83,7 +102,7 @@ mandel_queue.py   - Run parallel using a queue for IPC
 mandel_stream.py  - Run parallel using a socket for IPC
 mandel_parfor.py  - Run parallel using Numba's parfor loop
 mandel_ocl.py     - Run on the CPU or GPU using PyOpenCL
-mandel_cuda.py    - Run on the GPU using PyCUDA (GCC 10.x max)
+mandel_cuda.py    - Run on the GPU using PyCUDA
 mandel_kernel.py  - Run on the GPU using cuda.jit
 
 python3 mandel_queue.py -h
@@ -93,11 +112,12 @@ python3 mandel_queue.py --config=app.ini 720p --num-samples=3
 python3 mandel_queue.py --location 5
 ```
 
-Until CUDA reaches full compatibility with GCC 11.x, optionally specify
-GCC 10.x or lower for the `mandel_cuda.py` demonstration. On Clear Linux,
-install the `c-extras-gcc10` bundle.
+The `mandel_cuda.py` example allows GCC 11 or higher, since Dec 28, 2022.
+This is done by passing the `-allow-unsupported-compiler` option to `nvcc`.
+Optionally, specify GCC 10.x or lower if unable to run due to GCC failure.
 
 ```text
+# GCC 10 installation on Clear Linux
 sudo swupd bundle-add c-extras-gcc10
 
 python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-10

@@ -55,6 +55,7 @@ class App(WindowPygame):
         # Allocate CUDA variables. Here, I set -fmad to false.
         # Instead, FMA is determined by the FMA_ON or FMA_OFF switch.
         options = [
+            '-allow-unsupported-compiler',
             '-fmad=false', '-prec-div=true', '-prec-sqrt=true',
             '--compiler-options',
             '-DFMA_ON' if self.fma else '-DFMA_OFF',
@@ -66,7 +67,7 @@ class App(WindowPygame):
         if len(OPT.compiler_bindir) > 0:
             options.insert(0, '--compiler-bindir={}'.format(OPT.compiler_bindir))
         elif os.path.exists('/usr/bin/gcc') and os.path.exists('/usr/bin/gcc-10'):
-            # Prefer GCC 10 as CUDA is not fully compatible with GCC 11.x.
+            # Prefer GCC 10, if available on the system.
             options.insert(0, '--compiler-bindir=gcc-10')
 
         try:
