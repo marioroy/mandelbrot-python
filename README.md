@@ -56,8 +56,8 @@ This involves `pip` for packages not available in the main channel.
 ```bash
 conda install numpy==1.21.5   # not installed by default in miniconda
 
-conda install tbb==2021.5.0   # not installed by default in miniconda
-conda install tbb-devel==2021.5.0
+conda install tbb==2021.7.0   # not installed by default in miniconda
+conda install tbb-devel==2021.7.0
 
 conda install -c numba llvmlite numba   # or specific version
 conda install -c numba llvmlite==0.39.1 numba==0.56.4
