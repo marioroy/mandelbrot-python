@@ -54,6 +54,8 @@ which nvcc
 This involves `pip` for packages not available in the main channel.
 
 ```bash
+conda install numpy==1.21.5   # not installed by default in miniconda
+
 conda install tbb==2021.5.0   # not installed by default in miniconda
 conda install tbb-devel==2021.5.0
 
