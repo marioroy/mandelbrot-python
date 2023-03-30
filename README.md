@@ -18,11 +18,11 @@ The `c-basic` bundle provides the minimum development components.
 sudo swupd bundle-add c-basic wget
 ```
 
-For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for the driver and CUDA Toolkit installation.
+For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for installing the driver and CUDA Toolkit.
 
 **Ubuntu Linux 20.04.x**
 
-The `build-essential` package installs the build components. Optionally, install `pocl-opencl-icd` for running OpenCL on the CPU.
+Install the `build-essential` package for the build components. Optionally, install `pocl-opencl-icd` for running OpenCL on the CPU.
 
 ```bash
 sudo apt update
@@ -33,7 +33,7 @@ sudo apt install opencl-c-headers opencl-clhpp-headers opencl-headers
 sudo apt install pocl-opencl-icd
 ```
 
-For NVIDIA graphics, install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) for the `pycuda` demonstration. Important: Choose the CUDA Toolkit matching your display driver. I happen to be running the 515.x.x display driver, so selected CUDA Toolkit 11.7.1. Your version may differ from mine. Adjust the paths accordingly.
+Using NVIDIA graphics? Install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) for the `pycuda` demonstration. Important: Choose the CUDA Toolkit matching your display driver. I happen to be running the 515.x.x driver, so selected CUDA Toolkit 11.7.1. Your version may differ from mine. Adjust the paths accordingly.
 
 | Driver | CUDA Toolkit |
 |--------|--------------|
