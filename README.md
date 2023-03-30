@@ -8,48 +8,80 @@ A demonstration for exploring the [Mandelbrot Set](https://en.wikipedia.org/wiki
 
 ## Requirements and Installation
 
-This requires Python 3.6+ minimally, Numba, Numpy, and Pygame. The Numba installion pulls Numpy specific to the Numba release. Optionally, install Pyopencl and/or Pycuda for running on the GPU.
+This requires Python 3.7 minimally, Numba, Numpy, and Pygame. Install Pyopencl or Pycuda for running on the GPU.
 
-Development was done in a Linux environment. However, you will be pleased to know that testing was done on FreeBSD, Linux, macOS, and Microsoft Windows.
+**Clear Linux**
 
-**Ubuntu Linux 20.04.4**
+The `c-basic` bundle provides the minimum development components.
+
+```bash
+sudo swupd bundle-add c-basic wget
+```
+
+For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for the driver and CUDA Toolkit installation.
+
+**Ubuntu Linux 20.04.x**
+
+The `build-essential` package installs the build components. Optionally, install `pocl-opencl-icd` for running OpenCL on the CPU.
 
 ```bash
 sudo apt update
 sudo apt install build-essential
-sudo apt install python3-numba python3-pygame
-sudo apt install python3-pyopencl pocl-opencl-icd
+sudo apt install clinfo ocl-icd-libopencl1 ocl-icd-opencl-dev
+sudo apt install opencl-c-headers opencl-clhpp-headers opencl-headers
+
+sudo apt install pocl-opencl-icd
 ```
 
-For NVIDIA graphics, optionally install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) 11.1.1; Linux x86_64 - Ubuntu 20.04 - runfile (local). Do not install later than 11.1.1 or the `mandel_kernel.py` demonstration will not work, due to using `python3-numba` 0.48.0.
+For NVIDIA graphics, install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) for the `pycuda` demonstration. Important: Choose the CUDA Toolkit matching your display driver. I happen to be running the 515.x.x display driver, so selected CUDA Toolkit 11.7.1. Your version may differ from mine. Adjust the paths accordingly.
+
+| Driver | CUDA Toolkit |
+|--------|--------------|
+|  530   |    12.1.0    |
+|  525   |    12.0.1    |
+|  520   |    11.8.0    |
+|  515   |    11.7.1    |
+|  510   |    11.6.2    |
 
 ```bash
 cd ~/Downloads
-wget https://developer.download.nvidia.com/compute/cuda/11.1.1/local_installers/cuda_11.1.1_455.32.00_linux.run
+wget https://developer.download.nvidia.com/compute/cuda/11.7.1/local_installers/cuda_11.7.1_515.65.01_linux.run
 
 # install CUDA Toolkit
-sudo sh cuda_11.1.1_455.32.00_linux.run \
-  --toolkit --installpath=/opt/cuda-11.1.1 \
+sudo sh cuda_11.7.1_515.65.01_linux.run \
+  --toolkit --installpath=/opt/cuda-11.7.1 \
   --no-opengl-libs --no-drm --override --silent
 
 # remove OpenCL libs as they conflict with ocl-icd-libopencl1 package
-sudo rm -f /opt/cuda-11.1.1/targets/x86_64-linux/lib/libOpenCL.so*
+sudo rm -f /opt/cuda-11.7.1/targets/x86_64-linux/lib/libOpenCL.so*
+
+# create symbolic link
+sudo ln -sf /opt/cuda-11.7.1 /opt/cuda
 
 # update dynamic linker cache
 sudo ldconfig
 
-# install PyCUDA
-CUDA_ROOT=/opt/cuda-11.1.1 PATH=$PATH:$CUDA_ROOT/bin \
-  pip3 install --user pycuda
-
 # update ~/.profile so that it can find nvcc
-export PATH=$PATH:/opt/cuda-11.1.1/bin
+export PATH=$PATH:/opt/cuda/bin
 
 # log out and log in; check that nvcc is in your path
 which nvcc
 ```
 
-**Installation steps for [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) and [Miniconda](https://docs.conda.io/en/latest/miniconda.html)**
+## Miniconda
+
+Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+for your platform using the default options.
+
+On Windows, install [Build Tools for Visual Studio 2019](https://learn.microsoft.com/en-us/visualstudio/releases/2019/history#release-dates-and-build-numbers). Select only "Desktop Environment with C++" when installing. I tried version 16.11.25 from March 14, 2023, having no issues.
+
+Open a shell with Miniconda activated. On Windows, launch "Anaconda Prompt (miniconda3)" from the Start Menu. Optionally, execute the `vcvars64.bat` command, including the quotes around it. It configures the VC build environment. The VC environment is required for installing `pycuda` and running the `pyopencl` and `pycuda` demonstrations.
+
+```text
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+```
+
+**Installation steps**
 
 This involves `pip` for packages not available in the main channel.
 
@@ -59,23 +91,26 @@ conda install numpy==1.21.5   # not installed by default in miniconda
 conda install tbb==2021.7.0   # not installed by default in miniconda
 conda install tbb-devel==2021.7.0
 
-conda install -c numba llvmlite numba   # or specific version
-conda install -c numba llvmlite==0.39.1 numba==0.56.4
+conda install -c numba llvmlite numba
+conda install -c numba llvmlite==0.39.1 numba==0.56.4  # or specific release
+conda install -c numba/label/dev llvmlite numba        # or dev release
 
 pip install pygame
 ```
 
 Install dependencies for `pyopencl` and `pycuda`. It requires OpenCL
 and CUDA development files on the system to build successfully.
+Ensure the `nvcc` command is in your path for `pycuda`.
 
 ```bash
 conda install appdirs platformdirs MarkupSafe mako typing-extensions
 
-pip install pytools pyopencl  # optional, for CPU/GPU
-pip install pytools pycuda    # optional, for NVIDIA GPU
+pip install pytools   # another dependency
+pip install pyopencl  # optional, for CPU or GPU
+pip install pycuda    # optional, for NVIDIA GPU
 ```
 
-The `pycuda` module may require manual installation. Adjust the root path accordingly.
+The `pycuda` module may require manual installation on Unix platforms. Adjust the root path accordingly.
 
 ```bash
 export CUDA_ROOT=/opt/cuda
@@ -89,7 +124,6 @@ tar xf pycuda-2022.2.2.tar.gz
 cd pycuda-2022.2.2
 
 ./configure.py
-make -j
 make install
 ```
 
@@ -97,7 +131,7 @@ make install
 
 Rendering on the GPU requires double-precision support on the device.
 On FreeBSD, install `pocl` for OpenCL on the CPU. It works quite well.
-On Windows, run `vcvars64.bat` first (Visual Studio) for CUDA/OpenCL.
+On Windows, run the build tools `vcvars64.bat` first for CUDA/OpenCL.
 
 ```text
 mandel_queue.py   - Run parallel using a queue for IPC
@@ -116,7 +150,8 @@ python3 mandel_queue.py --location 5
 
 The `mandel_cuda.py` example allows GCC 11 or higher, since Dec 28, 2022.
 This is done by passing the `-allow-unsupported-compiler` option to `nvcc`.
-Optionally, specify GCC 10.x or lower if unable to run due to GCC failure.
+
+Specify GCC 10.x or lower if unable to run due to GCC failure.
 
 ```text
 # GCC 10 installation on Clear Linux
