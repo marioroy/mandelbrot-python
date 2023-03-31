@@ -95,6 +95,8 @@ conda install -c numba llvmlite numba
 conda install -c numba llvmlite==0.39.1 numba==0.56.4  # or specific release
 conda install -c numba/label/dev llvmlite numba        # or dev release
 
+conda install pillow
+
 pip install pygame
 ```
 
