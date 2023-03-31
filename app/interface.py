@@ -5,7 +5,9 @@ Provides the Pygame-based window interface.
 
 __all__ = ["WindowPygame"]
 
-import math, sys, time
+import math, os, sys, time
+os.environ['SDL_VIDEO_ALLOW_SCREENSAVER'] = '1';
+
 import numpy as np
 import pygame as pg
 
