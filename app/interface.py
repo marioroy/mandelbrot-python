@@ -230,6 +230,8 @@ class WindowPygame(Base):
                     self.rgb_sum_reset = True
                     return True
                 elif pg.event.peek((pg.KEYDOWN,), pump=True):
+                    if pg.event.wait().key == pg.K_q:
+                        return True
                     break
                 self.__handle_zoom(1 / self.magf, 1)
                 curr_time = time.time()
@@ -242,6 +244,8 @@ class WindowPygame(Base):
                     self.rgb_sum_reset = True
                     return True
                 elif pg.event.peek((pg.KEYDOWN,), pump=True):
+                    if pg.event.wait().key == pg.K_q:
+                        return True
                     break
                 self.__handle_zoom(1 / self.magf, 1)
 
