@@ -71,13 +71,15 @@ class WindowPygame(Base):
         # There's no sound or anything like that. Thus initializing display only.
         pg.display.init()
 
-        self.window = pg.display.set_mode((self.width, self.height), flags=pg.DOUBLEBUF)
-        self.window.fill(pg.Color('#000000'))
+        self.window = pg.display.set_mode((self.width, self.height), flags=pg.DOUBLEBUF|pg.HIDDEN)
         self.window.set_alpha(None)
+        self.window.fill(pg.Color('#000000'))
 
         pg.display.set_caption("Mandelbrot Set")
         pg.key.set_repeat(210, 15)
         pg.display.flip()
+
+        self.window = pg.display.set_mode((self.width, self.height), flags=pg.DOUBLEBUF|pg.SHOWN)
 
 
     def print_info(self):
