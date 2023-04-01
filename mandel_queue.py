@@ -130,12 +130,12 @@ class App(WindowPygame):
 
     def cpu_task(self, wid, height, width, kernel):
 
-        if USE_FORK and sys.platform == 'linux' and os.cpu_count() > 2:
-            pid = os.getpid()
-            cnt = os.cpu_count()
-            cpu = (wid - 1) % cnt if wid <= cnt - 2 else f"0-{cnt - 1}"
-            cmd = f"taskset --cpu-list --pid {cpu} {pid} >/dev/null"
-            os.system(cmd)
+      # if USE_FORK and sys.platform == 'linux' and os.cpu_count() > 2:
+      #     pid = os.getpid()
+      #     cnt = os.cpu_count()
+      #     cpu = (wid - 1) % cnt if wid <= cnt - 2 else f"0-{cnt - 1}"
+      #     cmd = f"taskset --cpu-list --pid {cpu} {pid} >/dev/null"
+      #     os.system(cmd)
 
         try:
             self.__cpu_task(wid, height, width, kernel)
@@ -194,12 +194,12 @@ class App(WindowPygame):
 
 if __name__ == '__main__':
 
-    if USE_FORK and sys.platform == 'linux' and os.cpu_count() > 2:
-        pid = os.getpid()
-        cpu1 = os.cpu_count() - 1
-        cpu2 = os.cpu_count() - 2
-        cmd = f"taskset --cpu-list --pid {cpu1},{cpu2} {pid} >/dev/null"
-        os.system(cmd)
+  # if USE_FORK and sys.platform == 'linux' and os.cpu_count() > 2:
+  #     pid = os.getpid()
+  #     cpu1 = os.cpu_count() - 1
+  #     cpu2 = os.cpu_count() - 2
+  #     cmd = f"taskset --cpu-list --pid {cpu1},{cpu2} {pid} >/dev/null"
+  #     os.system(cmd)
 
     mandel = App(OPT)
     try:

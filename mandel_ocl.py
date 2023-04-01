@@ -11,8 +11,7 @@ from app.option import OPT
 from app.base import GRADIENT_LENGTH, RADIUS
 from app.interface import WindowPygame
 
-# Silently limit the number of threads to os.cpu_count() - 1.
-NUM_THREADS = min(os.cpu_count() - 1, max(1, OPT.num_threads))
+NUM_THREADS = min(os.cpu_count(), max(1, OPT.num_threads))
 os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)   # AMD OpenCL CPU
 os.environ['POCL_MAX_PTHREAD_COUNT'] = str(NUM_THREADS)  # pocl CPU
 

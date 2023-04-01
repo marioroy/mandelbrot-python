@@ -107,7 +107,7 @@ class Option(object):
             ncpu = int(
                 os.getenv('NUMBA_NUM_THREADS') or
                 os.getenv('NUM_THREADS') or
-                os.cpu_count() - 1
+                os.cpu_count()
                 )
             self.num_threads = max(1, ncpu)
 
