@@ -5,16 +5,26 @@ Provides the base class.
 
 __all__ = ["GRADIENT_LENGTH", "INSIDE_COLOR1", "INSIDE_COLOR2", "RADIUS", "Base"]
 
-import math, random
+import math, os, random, sys
 import numpy as np
 
-# Silent UserWarnings, since numpy 1.22:
-# https://github.com/numpy/numpy/issues/20895
+# Suppress subnormal UserWarnings: since numpy 1.22.
 # The value of the smallest subnormal for <class 'numpy.float32'> type is zero.
 # The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+# Refer to: https://github.com/numpy/numpy/issues/20895
 
-np.finfo(np.dtype("float32"))
-np.finfo(np.dtype("float64"))
+class _suppress_stderr:
+    def __init__(self):
+        self._stderr = None
+    def __enter__(self):
+        self._stderr = sys.stderr
+        sys.stderr = open(os.devnull, "w")
+    def __exit__(self, *args):
+        sys.stderr = self._stderr
+
+with _suppress_stderr():
+    np.finfo(np.dtype("float32"))
+    np.finfo(np.dtype("float64"))
 
 GRADIENT_LENGTH = 260
 INSIDE_COLOR1 = (np.uint8(0x01),np.uint8(0x01),np.uint8(0x01))
