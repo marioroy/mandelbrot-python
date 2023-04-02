@@ -8,6 +8,9 @@ __all__ = ["GRADIENT_LENGTH", "INSIDE_COLOR1", "INSIDE_COLOR2", "RADIUS", "Base"
 import math, os, random, sys
 import numpy as np
 
+# Unset the deprecated environment variable seen on Clear Linux.
+os.unsetenv('MESA_GLSL_CACHE_DISABLE')
+
 # Suppress subnormal UserWarnings: since numpy 1.22.
 # The value of the smallest subnormal for <class 'numpy.float32'> type is zero.
 # The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
