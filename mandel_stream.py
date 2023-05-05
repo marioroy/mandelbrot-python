@@ -76,6 +76,13 @@ class App(WindowPygame):
             self.consumers.append(Thread(target=self.cpu_task, args=args))
             self.consumers[-1].start()
 
+        if USE_FORK and sys.platform == 'linux' and os.cpu_count() > 2:
+            pid = os.getpid()
+            cpu1 = os.cpu_count() - 1
+            cpu2 = os.cpu_count() - 2
+            cmd = f"taskset --cpu-list --pid {cpu1},{cpu2} {pid} >/dev/null"
+            os.system(cmd)
+
         # Instantiate the Window interface.
         super().init()
 
@@ -214,13 +221,6 @@ class App(WindowPygame):
 
 
 if __name__ == '__main__':
-
-  # if USE_FORK and sys.platform == 'linux' and os.cpu_count() > 2:
-  #     pid = os.getpid()
-  #     cpu1 = os.cpu_count() - 1
-  #     cpu2 = os.cpu_count() - 2
-  #     cmd = f"taskset --cpu-list --pid {cpu1},{cpu2} {pid} >/dev/null"
-  #     os.system(cmd)
 
     mandel = App(OPT)
     try:
