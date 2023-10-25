@@ -150,17 +150,18 @@ python3 mandel_queue.py --config=app.ini 720p --num-samples=3
 python3 mandel_queue.py --location 5
 ```
 
-The `mandel_cuda.py` example allows GCC 11 or higher, since Dec 28, 2022.
+The `mandel_cuda.py` example works with GCC 11, since Dec 28, 2022.
 This is done by passing the `-allow-unsupported-compiler` option to `nvcc`.
 
-Specify GCC 10.x or lower if unable to run due to GCC failure.
+Install GCC 11 or 10 if unable to run due to later GCC release.
 
 ```text
-# GCC 10 installation on Clear Linux
-sudo swupd bundle-add c-extras-gcc10
+# GCC 11 installation on Clear Linux
+sudo swupd bundle-add c-extras-gcc11
 
-python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-10
-python3 mandel_cuda.py --compiler-bindir=gcc-10
+python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-11
+python3 mandel_cuda.py --compiler-bindir=gcc-11
+python3 mandel_cuda.py   # default to gcc-11 or gcc-10 if installed
 ```
 
 ## Usage

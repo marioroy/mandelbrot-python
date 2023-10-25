@@ -66,8 +66,11 @@ class App(WindowPygame):
 
         if len(OPT.compiler_bindir) > 0:
             options.insert(0, '--compiler-bindir={}'.format(OPT.compiler_bindir))
+        elif os.path.exists('/usr/bin/gcc') and os.path.exists('/usr/bin/gcc-11'):
+            # Compile using GCC 11, if available on the system.
+            options.insert(0, '--compiler-bindir=gcc-11')
         elif os.path.exists('/usr/bin/gcc') and os.path.exists('/usr/bin/gcc-10'):
-            # Prefer GCC 10, if available on the system.
+            # Compile using GCC 10, if available on the system.
             options.insert(0, '--compiler-bindir=gcc-10')
 
         try:

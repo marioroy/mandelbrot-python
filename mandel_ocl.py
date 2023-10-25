@@ -41,7 +41,7 @@ class App(WindowPygame):
         cl_name = cl_ctx.devices[0].name.strip()
         cl_type = cl_ctx.devices[0].type
 
-        if re.search("^Intel\(R\) UHD Graphics", cl_name):
+        if re.search(r"^Intel\(R\) UHD Graphics", cl_name):
             print(f"[ERROR] {cl_name} lacks double-precision capabilities.")
             del cl_ctx
             sys.exit(1)
