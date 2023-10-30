@@ -12,8 +12,9 @@ from app.base import GRADIENT_LENGTH, RADIUS
 from app.interface import WindowPygame
 
 NUM_THREADS = min(os.cpu_count(), max(1, OPT.num_threads))
-os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)   # AMD OpenCL CPU
-os.environ['POCL_MAX_PTHREAD_COUNT'] = str(NUM_THREADS)  # pocl CPU
+os.environ['CL_CONFIG_CPU_TBB_NUM_WORKERS'] = str(NUM_THREADS)  # Intel OpenCL CPU
+os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)          # AMD OpenCL CPU
+os.environ['POCL_MAX_PTHREAD_COUNT'] = str(NUM_THREADS)         # pocl CPU
 
 filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl.c').replace(' ', '\\ ')
 with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
