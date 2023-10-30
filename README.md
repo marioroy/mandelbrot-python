@@ -8,7 +8,7 @@ A demonstration for exploring the [Mandelbrot Set](https://en.wikipedia.org/wiki
 
 ## Requirements and Installation
 
-This requires Python 3.7 minimally, Numba, Numpy, and Pygame. Install Pyopencl or Pycuda for running on the GPU.
+This requires Python 3.8 minimally, Numba, Numpy, and Pygame. Install Pyopencl or Pycuda for running on the GPU.
 
 **Clear Linux**
 
@@ -33,11 +33,12 @@ sudo apt install opencl-c-headers opencl-clhpp-headers opencl-headers
 sudo apt install pocl-opencl-icd
 ```
 
-Using NVIDIA graphics? Install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) for the `pycuda` demonstration. Important: Choose the CUDA Toolkit matching your display driver. I happen to be running the 515.x.x driver, so selected CUDA Toolkit 11.7.1. Your version may differ from mine. Adjust the paths accordingly.
+Using NVIDIA graphics? Install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) for the `pycuda` demonstration. Preferably, choose the CUDA Toolkit matching your display driver.
 
 | Driver | CUDA Toolkit |
 |--------|--------------|
-|  530   |    12.1.0    |
+|  535   |    12.2.2    |
+|  530   |    12.1.1    |
 |  525   |    12.0.1    |
 |  520   |    11.8.0    |
 |  515   |    11.7.1    |
@@ -45,18 +46,18 @@ Using NVIDIA graphics? Install [CUDA Toolkit](https://developer.nvidia.com/cuda-
 
 ```bash
 cd ~/Downloads
-wget https://developer.download.nvidia.com/compute/cuda/11.7.1/local_installers/cuda_11.7.1_515.65.01_linux.run
+wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
 
 # install CUDA Toolkit
-sudo sh cuda_11.7.1_515.65.01_linux.run \
-  --toolkit --installpath=/opt/cuda-11.7.1 \
+sudo sh cuda_11.8.0_520.61.05_linux.run \
+  --toolkit --installpath=/opt/cuda-11.8.0 \
   --no-opengl-libs --no-drm --override --silent
 
 # remove OpenCL libs as they conflict with ocl-icd-libopencl1 package
-sudo rm -f /opt/cuda-11.7.1/targets/x86_64-linux/lib/libOpenCL.so*
+sudo rm -f /opt/cuda-11.8.0/targets/x86_64-linux/lib/libOpenCL.so*
 
 # create symbolic link
-sudo ln -sf /opt/cuda-11.7.1 /opt/cuda
+sudo ln -sf /opt/cuda-11.8.0 /opt/cuda
 
 # update dynamic linker cache
 sudo ldconfig
@@ -86,13 +87,13 @@ Open a shell with Miniconda activated. On Windows, launch "Anaconda Prompt (mini
 This involves `pip` for packages not available in the main channel.
 
 ```bash
-conda install numpy==1.21.5   # not installed by default in miniconda
+conda install numpy==1.23.5   # not installed by default in miniconda
 
-conda install tbb==2021.7.0   # not installed by default in miniconda
-conda install tbb-devel==2021.7.0
+conda install tbb==2021.8.0   # not installed by default in miniconda
+conda install tbb-devel==2021.8.0
 
 conda install -c numba llvmlite numba
-conda install -c numba llvmlite==0.39.1 numba==0.56.4  # or specific release
+conda install -c numba llvmlite==0.41.0 numba==0.58.0  # or specific release
 conda install -c numba/label/dev llvmlite numba        # or dev release
 
 conda install pillow
