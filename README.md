@@ -203,7 +203,7 @@ python3 mandel_queue.py --shortcuts
 python3 mandel_queue.py --config=app.ini 720p
 python3 mandel_queue.py --config=app.ini 720p --num-samples=3
 python3 mandel_queue.py --location 5
-```-
+```
 
 The `mandel_cuda.py` example requires GCC 12.x or lower to run.
 If `nvcc` already defaults to GCC 12 or lower described above,
