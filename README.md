@@ -167,7 +167,7 @@ make install
 
 ## OpenCL CPU Runtime Libraries (Optional)
 
-The following steps provide OpenCL capability for x86-64 CPUs on Unix platforms.
+On Linux, the following steps provide OpenCL capability for x86-64 CPUs.
 
 ```bash
 # Install Intel® oneAPI Runtime COMMON LIBRARIES packae
