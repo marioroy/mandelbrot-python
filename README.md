@@ -53,6 +53,17 @@ link to have `nvcc` default to `gcc-12`.
 sudo ln -sf /opt/gcc-12/bin/gcc /opt/cuda/bin/gcc
 ```
 
+Finally, add two lines to your bash profile (assuming using bash).
+
+```text
+# update ~/.profile so that it can find nvcc
+export CUDA_HOME=/opt/cuda
+export PATH=$PATH:$CUDA_HOME/bin
+
+# log out and log in; check that nvcc is in your path
+which nvcc
+```
+
 **Ubuntu Linux 20.04.x**
 
 Install the `build-essential` package for the build components.
@@ -97,7 +108,8 @@ sudo ln -sf /opt/cuda-11.8.0 /opt/cuda
 sudo ldconfig
 
 # update ~/.profile so that it can find nvcc
-export PATH=$PATH:/opt/cuda/bin
+export CUDA_HOME=/opt/cuda
+export PATH=$PATH:$CUDA_HOME/bin
 
 # log out and log in; check that nvcc is in your path
 which nvcc
