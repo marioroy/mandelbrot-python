@@ -205,18 +205,17 @@ python3 mandel_queue.py --config=app.ini 720p --num-samples=3
 python3 mandel_queue.py --location 5
 ```
 
-The `mandel_cuda.py` example requires GCC 12.x or lower to run.
-If `nvcc` already defaults to GCC 12 or lower described above,
-the `--compiler-bindir` option may be omitted.
+The `mandel_cuda.py` example requires GCC 12.x or lower to run. If the `gcc`
+symbolic link  exists where `nvcc` resides, then the `--compiler-bindir`
+option may be omitted.
 
 ```text
-python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-11
-python3 mandel_cuda.py --compiler-bindir=gcc-11
-
 # default to /usr/local/cuda/bin/gcc, gcc-12, gcc-11, gcc-10, or gcc
-# typically, /usr/local/cuda is a symbolic link to /opt/cuda
+# typically, /usr/local/cuda is a symbolic link to /opt/cuda* path
 
 python3 mandel_cuda.py
+python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-11
+python3 mandel_cuda.py --compiler-bindir=gcc-11
 ```
 
 ## Usage
