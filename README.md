@@ -20,9 +20,9 @@ sudo swupd bundle-add c-basic wget
 
 For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for installing the driver and CUDA Toolkit.
 
-**Fedora Linux 38 and Nobara Linux 38**
+**CUDA Installation on Fedora/Nobara Linux 38**
 
-Installing the CUDA Toolkit from NVIDIA is preferred for NVIDIA graphics.
+Installing the CUDA Toolkit from NVIDIA is preferred to allow installation to `/opt/cuda`. The instructions install the CUDA Toolkit 12.2.x release, assuming the proprietary display driver 535.x is installed (last checked November 2023). Note: A mismatch between the CUDA Toolkit and display driver may cause the Numba GPU `mandel_kernel` example to fail.
 
 ```bash
 sudo dnf install clinfo make gcc-c++ wget
