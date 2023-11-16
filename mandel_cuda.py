@@ -69,10 +69,13 @@ class App(WindowPygame):
         elif os.path.exists('/usr/local/cuda/bin/gcc'):
             # Compile using GCC symbolic link, inside the cuda bin dir.
             options.insert(0, '--compiler-bindir=/usr/local/cuda/bin/gcc')
-        elif os.path.exists('/usr/bin/gcc') and os.path.exists('/usr/bin/gcc-11'):
+        elif os.path.exists('/usr/local/bin/gcc-12') or os.path.exists('/usr/bin/gcc-12'):
+            # Compile using GCC 12, if available on the system.
+            options.insert(0, '--compiler-bindir=gcc-12')
+        elif os.path.exists('/usr/local/bin/gcc-11') or os.path.exists('/usr/bin/gcc-11'):
             # Compile using GCC 11, if available on the system.
             options.insert(0, '--compiler-bindir=gcc-11')
-        elif os.path.exists('/usr/bin/gcc') and os.path.exists('/usr/bin/gcc-10'):
+        elif os.path.exists('/usr/local/bin/gcc-10') or os.path.exists('/usr/bin/gcc-10'):
             # Compile using GCC 10, if available on the system.
             options.insert(0, '--compiler-bindir=gcc-10')
 

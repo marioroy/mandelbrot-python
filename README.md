@@ -212,7 +212,7 @@ the `--compiler-bindir` option may be omitted.
 python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-11
 python3 mandel_cuda.py --compiler-bindir=gcc-11
 
-# default to /usr/local/cuda/bin/gcc, gcc-11, gcc-10, or gcc
+# default to /usr/local/cuda/bin/gcc, gcc-12, gcc-11, gcc-10, or gcc
 # typically, /usr/local/cuda is a symbolic link to /opt/cuda
 
 python3 mandel_cuda.py
