@@ -168,6 +168,7 @@ make install
 ## OpenCL CPU Runtime Libraries (Optional)
 
 On Linux, the following steps provide OpenCL capability for x86-64 CPUs.
+A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
 
 ```bash
 # Install Intel® oneAPI Runtime COMMON LIBRARIES packae
