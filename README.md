@@ -20,9 +20,43 @@ sudo swupd bundle-add c-basic wget
 
 For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for installing the driver and CUDA Toolkit.
 
+**Fedora Linux 38 and Nobara Linux 38**
+
+Installing the CUDA Toolkit from NVIDIA is preferred for NVIDIA graphics.
+
+```bash
+sudo dnf install clinfo make gcc-c++ wget
+sudo dnf install freeglut-devel libXi-devel libXmu-devel mesa-libGLU-devel
+
+cd ~/Downloads
+wget https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_535.104.05_linux.run
+
+sudo bash cuda_12.2.2_535.104.05_linux.run \
+    --toolkit \
+    --installpath=/opt/cuda \
+    --no-man-page \
+    --no-opengl-libs \
+    --no-drm \
+    --override \
+    --silent
+
+sudo ldconfig
+sync
+```
+
+The NVIDIA CUDA Toolkit does not yet support `GCC 13` as of November 2023.
+See [guide](https://gist.github.com/marioroy/6d4c055d970bdff0492db75f76dae842)
+to install `gcc-12` binaries from Debian. After installation, create a symbolic
+link to have `nvcc` default to `gcc-12`.
+
+```bash
+sudo ln -sf /opt/gcc-12/bin/gcc /opt/cuda/bin/gcc
+```
+
 **Ubuntu Linux 20.04.x**
 
-Install the `build-essential` package for the build components. Optionally, install `pocl-opencl-icd` for running OpenCL on the CPU.
+Install the `build-essential` package for the build components.
+Optionally, install `pocl-opencl-icd` for running OpenCL on the CPU.
 
 ```bash
 sudo apt update
@@ -50,8 +84,8 @@ wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/
 
 # install CUDA Toolkit
 sudo sh cuda_11.8.0_520.61.05_linux.run \
-  --toolkit --installpath=/opt/cuda-11.8.0 \
-  --no-opengl-libs --no-drm --override --silent
+    --toolkit --installpath=/opt/cuda-11.8.0 \
+    --no-opengl-libs --no-drm --override --silent
 
 # remove OpenCL libs as they conflict with ocl-icd-libopencl1 package
 sudo rm -f /opt/cuda-11.8.0/targets/x86_64-linux/lib/libOpenCL.so*
@@ -87,13 +121,13 @@ Open a shell with Miniconda activated. On Windows, launch "Anaconda Prompt (mini
 This involves `pip` for packages not available in the main channel.
 
 ```bash
-conda install numpy==1.23.5   # not installed by default in miniconda
+conda create -n mandel python=3.11  # create a new environment
+conda activate mandel               # switch environment
 
-conda install tbb==2021.8.0   # not installed by default in miniconda
-conda install tbb-devel==2021.8.0
+conda install numpy tbb tbb-devel   # not installed by default
 
 conda install -c numba llvmlite numba
-conda install -c numba llvmlite==0.41.0 numba==0.58.0  # or specific release
+conda install -c numba llvmlite==0.41.1 numba==0.58.1  # or specific release
 conda install -c numba/label/dev llvmlite numba        # or dev release
 
 conda install pillow
@@ -113,7 +147,8 @@ pip install pyopencl  # optional, for CPU or GPU
 pip install pycuda    # optional, for NVIDIA GPU
 ```
 
-The `pycuda` module may require manual installation on Unix platforms. Adjust the root path accordingly.
+The `pycuda` module may require manual installation on Unix platforms.
+Adjust the root path accordingly.
 
 ```bash
 export CUDA_ROOT=/opt/cuda
@@ -123,11 +158,29 @@ export PATH=$PATH:$CUDA_ROOT/bin
 cd ~/Downloads
 
 # Obtain pycuda file from pypi.org
-tar xf pycuda-2022.2.2.tar.gz
-cd pycuda-2022.2.2
+tar xf pycuda-2023.1.tar.gz
+cd pycuda-2023.1
 
 ./configure.py
 make install
+```
+
+## OpenCL CPU Runtime Libraries (Optional)
+
+The following steps provide OpenCL capability for x86-64 CPUs on Unix platforms.
+
+```bash
+# Install Intel® oneAPI Runtime COMMON LIBRARIES packae
+pip install --user intel-cmplr-lib-rt
+
+# Install COMPILER-SPECIFIC Intel® oneAPI OpenCL* Runtime package
+pip install --user intel-opencl-rt
+
+# Create OpenCL Installable Client Driver (ICD) loader definition
+sudo mkdir -p /etc/OpenCL/vendors
+sudo tee /etc/OpenCL/vendors/intel-cpu.icd >/dev/null << EOF
+/home/$USER/.local/lib/libintelocl.so
+EOF
 ```
 
 ## Python Scripts
@@ -149,20 +202,16 @@ python3 mandel_queue.py --shortcuts
 python3 mandel_queue.py --config=app.ini 720p
 python3 mandel_queue.py --config=app.ini 720p --num-samples=3
 python3 mandel_queue.py --location 5
-```
+```-
 
-The `mandel_cuda.py` example works with GCC 11, since Dec 28, 2022.
-This is done by passing the `-allow-unsupported-compiler` option to `nvcc`.
-
-Install GCC 11 or 10 if unable to run due to later GCC release.
+The `mandel_cuda.py` example requires GCC 12.x or lower to run.
+If `nvcc` already defaults to GCC 12 or lower described above,
+the `--compiler-bindir` option may be omitted.
 
 ```text
-# GCC 11 installation on Clear Linux
-sudo swupd bundle-add c-extras-gcc11
-
 python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-11
 python3 mandel_cuda.py --compiler-bindir=gcc-11
-python3 mandel_cuda.py   # default to gcc-11 or gcc-10 if installed
+python3 mandel_cuda.py   # defaults to gcc-11 or gcc-10 if installed
 ```
 
 ## Usage
