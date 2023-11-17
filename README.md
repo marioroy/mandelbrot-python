@@ -20,15 +20,22 @@ sudo swupd bundle-add c-basic wget
 
 For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for installing the driver and CUDA Toolkit.
 
-**CUDA Installation on Fedora/Nobara Linux 38**
+**CUDA Installation on Fedora/Nobara Linux 38 and Ubuntu Linux 23.04**
 
 Installing the CUDA Toolkit from NVIDIA is preferred to allow installation to `/opt/cuda`. The instructions install the CUDA Toolkit 12.2.x release, assuming the proprietary display driver 535.x or later is installed. Note: Installing CUDA Toolkit later than the display driver may cause Numba cuda.jit to fail.
 
 ```bash
-sudo dnf install clinfo make gcc-c++ wget
+# Fedora/Nobara Linux 38
+sudo dnf install make gcc-c++ wget
 sudo dnf install freeglut-devel libXi-devel libXmu-devel mesa-libGLU-devel
 
+# Ubuntu Linux 23.04
+sudo apt update
+sudo apt install build-essential wget
+
+# CUDA Toolkit installation
 cd ~/Downloads
+
 wget https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_535.104.05_linux.run
 
 sudo bash cuda_12.2.2_535.104.05_linux.run \
@@ -47,66 +54,19 @@ sync
 The NVIDIA CUDA Toolkit does not yet support `GCC 13` as of November 2023.
 See [guide](https://gist.github.com/marioroy/6d4c055d970bdff0492db75f76dae842)
 to install `gcc-12` binaries from Debian. After installation, create a symbolic
-link to have `nvcc` default to `gcc-12`.
+link to have `nvcc` default to `gcc-12`. On Ubuntu, install the `gcc-12` package.
 
 ```bash
+# Fedora/Nobara Linux 38
 sudo ln -sf /opt/gcc-12/bin/gcc /opt/cuda/bin/gcc
+
+# Ubuntu Linux 23.04
+sudo ln -sf /usr/bin/gcc-12 /opt/cuda/bin/gcc
 ```
 
 Finally, add two lines to your bash profile (assuming using bash).
 
 ```text
-# update ~/.profile so that it can find nvcc
-export CUDA_HOME=/opt/cuda
-export PATH=$PATH:$CUDA_HOME/bin
-
-# log out and log in; check that nvcc is in your path
-which nvcc
-```
-
-**Ubuntu Linux 20.04.x**
-
-Install the `build-essential` package for the build components.
-Optionally, install `pocl-opencl-icd` for running OpenCL on the CPU.
-
-```bash
-sudo apt update
-sudo apt install build-essential
-sudo apt install clinfo ocl-icd-libopencl1 ocl-icd-opencl-dev
-sudo apt install opencl-c-headers opencl-clhpp-headers opencl-headers
-
-sudo apt install pocl-opencl-icd
-```
-
-Using NVIDIA graphics? Install [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit-archive) for the `pycuda` demonstration. Preferably, choose the CUDA Toolkit matching your display driver.
-
-| Driver | CUDA Toolkit |
-|--------|--------------|
-|  535   |    12.2.2    |
-|  530   |    12.1.1    |
-|  525   |    12.0.1    |
-|  520   |    11.8.0    |
-|  515   |    11.7.1    |
-|  510   |    11.6.2    |
-
-```bash
-cd ~/Downloads
-wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
-
-# install CUDA Toolkit
-sudo sh cuda_11.8.0_520.61.05_linux.run \
-    --toolkit --installpath=/opt/cuda-11.8.0 \
-    --no-opengl-libs --no-drm --override --silent
-
-# remove OpenCL libs as they conflict with ocl-icd-libopencl1 package
-sudo rm -f /opt/cuda-11.8.0/targets/x86_64-linux/lib/libOpenCL.so*
-
-# create symbolic link
-sudo ln -sf /opt/cuda-11.8.0 /opt/cuda
-
-# update dynamic linker cache
-sudo ldconfig
-
 # update ~/.profile so that it can find nvcc
 export CUDA_HOME=/opt/cuda
 export PATH=$PATH:$CUDA_HOME/bin
@@ -152,11 +112,23 @@ and CUDA development files on the system to build successfully.
 Ensure the `nvcc` command is in your path for `pycuda`.
 
 ```bash
+# Install Intel® oneAPI Runtime COMMON LIBRARIES package.
+# Install COMPILER-SPECIFIC Intel® oneAPI OpenCL* Runtime package.
+# A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
+
+conda install intel-cmplr-lib-rt   # for x86-64 Linux/Windows
+conda install intel-opencl-rt      # for x86-64 Linux/Windows
+
+# On Linux, copy the NVIDIA Installable Client Driver (ICD) loader definition.
+# Change the conda destination path accordingly, if different.
+# Install dependencies for pyopencl and pycuda.
+
+cp /etc/OpenCL/vendors/nvidia.icd ~/miniconda3/envs/mandel/etc/OpenCL/vendors/
 conda install appdirs platformdirs MarkupSafe mako typing-extensions
 
-pip install pytools   # another dependency
-pip install pyopencl  # optional, for CPU or GPU
-pip install pycuda    # optional, for NVIDIA GPU
+pip install pytools   # dependency not available in miniconda
+pip install pyopencl  # for CPU and GPU (optional)
+pip install pycuda    # for NVIDIA GPU  (optional)
 ```
 
 The `pycuda` module may require manual installation on Unix platforms.
@@ -175,25 +147,6 @@ cd pycuda-2023.1
 
 ./configure.py
 make install
-```
-
-## OpenCL CPU Runtime Libraries (Optional)
-
-On Linux, the following steps provide OpenCL capability for x86-64 CPUs.
-A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
-
-```bash
-# Install Intel® oneAPI Runtime COMMON LIBRARIES packae
-pip install --user intel-cmplr-lib-rt
-
-# Install COMPILER-SPECIFIC Intel® oneAPI OpenCL* Runtime package
-pip install --user intel-opencl-rt
-
-# Create OpenCL Installable Client Driver (ICD) loader definition
-sudo mkdir -p /etc/OpenCL/vendors
-sudo tee /etc/OpenCL/vendors/intel-cpu.icd >/dev/null << EOF
-/home/$USER/.local/lib/libintelocl.so
-EOF
 ```
 
 ## Python Scripts
