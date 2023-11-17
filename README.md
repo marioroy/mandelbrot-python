@@ -18,7 +18,7 @@ The `c-basic` bundle provides the minimum development components.
 sudo swupd bundle-add c-basic wget
 ```
 
-For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for installing the driver and CUDA Toolkit.
+For NVIDIA graphics, refer to [nvidia-driver-on-clear-linux](https://github.com/marioroy/nvidia-driver-on-clear-linux) for installing the proprietary driver and CUDA Toolkit.
 
 **CUDA Installation on Fedora/Nobara Linux 38 and Ubuntu Linux 23.04**
 
@@ -124,6 +124,7 @@ conda install intel-opencl-rt      # for x86-64 Linux/Windows
 # Install dependencies for pyopencl and pycuda.
 
 cp /etc/OpenCL/vendors/nvidia.icd ~/miniconda3/envs/mandel/etc/OpenCL/vendors/
+
 conda install appdirs platformdirs MarkupSafe mako typing-extensions
 
 pip install pytools   # dependency not available in miniconda
@@ -132,7 +133,7 @@ pip install pycuda    # for NVIDIA GPU  (optional)
 ```
 
 The `pycuda` module may require manual installation on Unix platforms.
-Adjust the root path accordingly.
+Adjust the root path accordingly, if different.
 
 ```bash
 export CUDA_ROOT=/opt/cuda
