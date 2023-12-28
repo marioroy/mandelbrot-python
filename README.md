@@ -93,28 +93,38 @@ Open a shell with Miniconda activated. On Windows, launch "Anaconda Prompt (mini
 This involves `pip` for packages not available in the main channel.
 
 ```bash
+# Quick installation via Conda requirements file.
+
+conda env create -n mandel --file reqs_conda.yml
+conda activate mandel
+
+# Or specify Python/Numba versions and install initial dependencies.
+
 conda create -n mandel python=3.11  # create a new environment
 conda activate mandel               # switch environment
 
-conda install numpy tbb tbb-devel   # not installed by default
-
-conda install -c numba llvmlite numba
+conda install -c numba llvmlite numba                  # install latest
 conda install -c numba llvmlite==0.41.1 numba==0.58.1  # or specific release
 conda install -c numba/label/dev llvmlite numba        # or dev release
 
-conda install pillow
+conda install tbb tbb-devel pillow
+conda install appdirs platformdirs MarkupSafe mako typing-extensions
+```
 
+Install the Pygame library for drawing and handling keyboard events.
+
+```
 pip install pygame
 ```
 
-Install dependencies for `pyopencl` and `pycuda`. It requires OpenCL
-and CUDA development files on the system to build successfully.
-Ensure the `nvcc` command is in your path for `pycuda`.
+Install dependencies for `pyopencl` or `pycuda`. It requires OpenCL
+or CUDA development files on the system to build successfully.
+For `pycuda`, ensure the `nvcc` command is in your path.
 
 ```bash
+# A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
 # Install Intel® oneAPI Runtime COMMON LIBRARIES package.
 # Install COMPILER-SPECIFIC Intel® oneAPI OpenCL* Runtime package.
-# A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
 
 conda install intel-cmplr-lib-rt   # for x86-64 Linux/Windows
 conda install intel-opencl-rt      # for x86-64 Linux/Windows
@@ -124,8 +134,6 @@ conda install intel-opencl-rt      # for x86-64 Linux/Windows
 # Install dependencies for pyopencl and pycuda.
 
 cp /etc/OpenCL/vendors/nvidia.icd ~/miniconda3/envs/mandel/etc/OpenCL/vendors/
-
-conda install appdirs platformdirs MarkupSafe mako typing-extensions
 
 pip install pytools   # dependency not available in miniconda
 pip install pyopencl  # for CPU and GPU (optional)
