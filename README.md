@@ -100,11 +100,11 @@ conda activate mandel
 
 # Or specify Python/Numba versions and install initial dependencies.
 
-conda create -n mandel python=3.11  # create a new environment
+conda create -n mandel python=3.12  # create a new environment
 conda activate mandel               # switch environment
 
 conda install -c numba llvmlite numba                  # install latest
-conda install -c numba llvmlite==0.41.1 numba==0.58.1  # or specific release
+conda install -c numba llvmlite==0.42.0 numba==0.59.0  # or specific release
 conda install -c numba/label/dev llvmlite numba        # or dev release
 
 conda install tbb tbb-devel pillow
@@ -151,8 +151,8 @@ export PATH=$PATH:$CUDA_ROOT/bin
 cd ~/Downloads
 
 # Obtain pycuda file from pypi.org
-tar xf pycuda-2023.1.tar.gz
-cd pycuda-2023.1
+tar xf pycuda-2024.1.tar.gz
+cd pycuda-2024.1
 
 ./configure.py
 make install

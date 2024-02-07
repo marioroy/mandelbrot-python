@@ -2,8 +2,8 @@ channels:
   - numba
   - defaults
 dependencies:
-  - python=3.11
-  - numba=0.58.1
+  - python=3.12
+  - numba=0.59.0
   - tbb
   - tbb-devel
   - pillow
