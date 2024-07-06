@@ -99,12 +99,15 @@ conda env create -n mandel --file reqs_conda.yml
 conda activate mandel
 
 # Or specify Python/Numba versions and install initial dependencies.
+# Choose MKL or OpenBLAS support for NumPy.
 
-conda create -n mandel python=3.12  # create a new environment
-conda activate mandel               # switch environment
+conda create -n mandel python=3.12 "blas=*=mkl"
+conda create -n mandel python=3.12 "blas=*=openblas"
+
+conda activate mandel
 
 conda install -c numba llvmlite numba                  # install latest
-conda install -c numba llvmlite==0.42.0 numba==0.59.0  # or specific release
+conda install -c numba llvmlite==0.42.0 numba==0.59.1  # or specific release
 conda install -c numba/label/dev llvmlite numba        # or dev release
 
 conda install tbb tbb-devel pillow
