@@ -107,7 +107,7 @@ conda create -n mandel python=3.12 "blas=*=openblas"
 conda activate mandel
 
 conda install -c numba llvmlite numba                  # install latest
-conda install -c numba llvmlite==0.42.0 numba==0.59.1  # or specific release
+conda install -c numba llvmlite==0.43.0 numba==0.60.0  # or specific release
 conda install -c numba/label/dev llvmlite numba        # or dev release
 
 conda install tbb tbb-devel pillow
@@ -115,9 +115,10 @@ conda install appdirs platformdirs MarkupSafe mako typing-extensions
 ```
 
 Install the Pygame library for drawing and handling keyboard events.
+Also, the siphash24 hashing library not installed automatically.
 
 ```
-pip install pygame
+pip install pygame siphash24
 ```
 
 Install dependencies for `pyopencl` or `pycuda`. It requires OpenCL
@@ -225,9 +226,13 @@ Options:
 
   CUDA Options (mandel_cuda):
     --compiler-bindir  directory in which the C compiler resides
-                 also, the compiler executable name can be specified
+                  (or) the compiler executable name can be specified
 
-  GPU Options (mandel_cuda, mandel_ocl):
+    --mixed-prec=ARG   select mixed-precision flag [0,1,2,3]: 2
+    --fma=ARG          select fused-multiply-add flag [0,1]: 0
+                       enabled for --mixed-prec=3
+
+  GPU Options (mandel_ocl):
     --mixed-prec=ARG   select mixed-precision flag [0,1,2]: 2
     --fma=ARG          select fused-multiply-add flag [0,1]: 0
 ```
@@ -266,6 +271,12 @@ d) Right)  scroll window right
 w) Up)     scroll window up
 ```
 
+**Color scheme**
+
+```text
+F1-F7)  select color scheme 1 through 7, respectively
+```
+
 **Auto zoom**
 
 Specify option `--fast-zoom` for fast/slow zoom mode.
@@ -282,10 +293,18 @@ g)  auto zoom from scale 0.33 to near --location 6
 t)  auto zoom from scale 0.33 to near --location 7
 ```
 
-**Color scheme**
+**Go to location**
+
+Display the image at location selection.
 
 ```text
-F1-F7)  select color scheme 1 through 7, respectively
+shift-z) location 1
+shift-x) location 2
+shift-c) location 3
+shift-v) location 4
+shift-b) location 5
+shift-g) location 6
+shift-t) location 7
 ```
 
 **Image quality**

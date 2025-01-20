@@ -17,8 +17,13 @@ if sys.platform != 'win32':
     lpath = os.getenv('LIBRARY_PATH') or ''
     os.environ['LIBRARY_PATH'] = lpath + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
 
+filepath = os.path.join(os.path.dirname(__file__), 'app', 'dfloat.h').replace(' ', '\\ ')
+with io.open(filepath, 'r', encoding='utf-8') as file:
+    KERNEL_HEADER = file.read()
+
 filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_cuda.c').replace(' ', '\\ ')
-with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
+with io.open(filepath, 'r', encoding='utf-8') as file:
+    KERNEL_SOURCE = KERNEL_HEADER + file.read()
 
 try:
     import pycuda.driver as cuda
@@ -127,7 +132,11 @@ class App(WindowPygame):
             return
 
         # State 2.
-        cuda_func = self.cuda_prg.get_function("mandelbrot2")
+        if self.mixed_prec < 3:
+            cuda_func = self.cuda_prg.get_function("mandelbrot2a")
+        else:
+            cuda_func = self.cuda_prg.get_function("mandelbrot2b")
+
         cuda_func(
             np.float64(self.min_x), np.float64(self.min_y),
             np.float64(step_x), np.float64(step_y), self.d_output, self.d_temp,

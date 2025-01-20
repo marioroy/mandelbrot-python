@@ -60,8 +60,9 @@ class Option(object):
         _opt(g, "--compiler-bindir", "str", "directory in which the host C compiler resides")
         p.add_option_group(g)
 
+        # mixed-prec=3 is supported by mandel_cuda, enables --fma=1
         g = OptionGroup(p, "GPU Options (mandel_cuda, mandel_ocl)")
-        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2]: 2")
+        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2,3]: 2")
         _opt(g, "--fma", "int", "select fused-multiply-add flag [0,1]: 0")
         p.add_option_group(g)
 
@@ -94,12 +95,16 @@ class Option(object):
         self.color_scheme = max(1, min(7, opt.color_scheme))
         self.fast_zoom = max(0, min(1, opt.fast_zoom))
         self.smooth_bench = max(0, min(1, opt.smooth_bench))
-        self.mixed_prec = max(0, min(2, opt.mixed_prec))
+        self.mixed_prec = max(0, min(3, opt.mixed_prec))
         self.fma = max(0, min(1, opt.fma))
         self.center_x = opt.center_x
         self.center_y = opt.center_y
         self.zoom_scale = opt.zoom_scale
         self.compiler_bindir = opt.compiler_bindir
+
+        # override fma option
+        if self.mixed_prec > 2:
+            self.fma = 1
 
         if opt.num_threads != 'auto':
             self.num_threads = max(1, int(opt.num_threads))
@@ -190,6 +195,9 @@ Keyboard shortcuts:
   d) Right)  scroll window right
   w) Up)     scroll window up
 
+  Color scheme:
+    F1-F7)   select color scheme 1 through 7, respectively
+
   Auto zoom:
     Specify option --fast-zoom for fast/slow zoom mode.
     Specify option --smooth-bench for smooth/bench mode.
@@ -202,8 +210,15 @@ Keyboard shortcuts:
     g)       auto zoom from scale 0.33 to near --location 6
     t)       auto zoom from scale 0.33 to near --location 7
 
-  Color scheme:
-    F1-F7)   select color scheme 1 through 7, respectively
+  Go to location:
+    Display the image at location selection.
+    shift-z) location 1
+    shift-x) location 2
+    shift-c) location 3
+    shift-v) location 4
+    shift-b) location 5
+    shift-g) location 6
+    shift-t) location 7
 
   Image quality:
     Supersampling involves sharpening using Unsharp Mask.

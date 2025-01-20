@@ -68,10 +68,12 @@ class WindowPygame(Base):
 
     def init(self):
 
-        # There's no sound or anything like that. Thus initializing display only.
+        # Initialize display only.
         pg.display.init()
 
-        self.window = pg.display.set_mode((self.width, self.height), flags=pg.DOUBLEBUF|pg.HIDDEN)
+        self.window = pg.display.set_mode((self.width, self.height), \
+            flags=pg.DOUBLEBUF|pg.HIDDEN)
+
         self.window.set_alpha(None)
         self.window.fill(pg.Color('#000000'))
 
@@ -79,7 +81,8 @@ class WindowPygame(Base):
         pg.key.set_repeat(210, 15)
         pg.display.flip()
 
-        self.window = pg.display.set_mode((self.width, self.height), flags=pg.DOUBLEBUF|pg.SHOWN)
+        self.window = pg.display.set_mode((self.width, self.height), \
+            flags=pg.DOUBLEBUF|pg.SHOWN)
 
 
     def print_info(self):
@@ -276,6 +279,29 @@ class WindowPygame(Base):
         self.display()
 
 
+    def __handle_location(self, symbol):
+
+        # begin at location
+        switch = {
+          pg.K_z: [-1.7485854655160802,  0.0126275661380999, 10042274467041.889],
+          pg.K_x: [-0.7746806106269039, -0.1374168856037867, 1422616677257.3857],
+          pg.K_c: [-0.0801706662109324,  0.6568767849265752, 3068340407.9648294],
+          pg.K_v: [-1.7689786824401361,  0.0046053975000913, 29868296.757352185],
+          pg.K_b: [-0.4391269761085219,  0.5745831678340557, 3060043.2274685167],
+          pg.K_g: [-0.7426799200664,     0.16382294543399,   7273.1447566685370],
+          pg.K_t: [-0.5476366631259864,  0.627355515204217,  256749985.20257786],
+          }     
+        default = [self.center_x, self.center_y, self.zoom_scale]
+        self.center_x, self.center_y, self.zoom_scale = \
+            switch.get(symbol, default)
+
+        self.level = 0
+        self.update_level()
+        self.update_iters()
+
+        self.display()
+
+
     def __handle_scroll_factor(self, symbol):
 
         if   symbol == pg.K_BACKQUOTE:     self.scroll_factor = 0.002
@@ -339,7 +365,10 @@ class WindowPygame(Base):
             self.__handle_change_colors(symbol)
 
         elif symbol in (pg.K_z, pg.K_x, pg.K_c, pg.K_v, pg.K_b, pg.K_g, pg.K_t):
-            return self.__handle_benchmark(symbol)
+            if pg.key.get_mods() & pg.KMOD_SHIFT:
+                return self.__handle_location(symbol)
+            else:
+                return self.__handle_benchmark(symbol)
 
         elif symbol == pg.K_e:
             (temp, output) = (self.temp, self.output)
