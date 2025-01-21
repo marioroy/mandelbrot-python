@@ -203,7 +203,7 @@ __device__ __forceinline__ dfloat_t sqrt_dfloat (const dfloat_t a)
 {
     dfloat_t t, z;
     float e, y, s, r;
-    r = rsqrt (a.y);
+    r = rsqrtf (a.y);
     if (a.y == 0.0f) r = 0.0f;
     y = __fmul_rn (a.y, r);
     s = __fmaf_rn (y, -y, a.y);
@@ -226,7 +226,7 @@ __device__ __forceinline__ dfloat_t rsqrt_dfloat (const dfloat_t a)
 {
     dfloat_t z;
     float r, s, e;
-    r = rsqrt (a.y);
+    r = rsqrtf (a.y);
     e = __fmul_rn (a.y, r);
     s = __fmaf_rn (e, -r, 1.0f);
     e = __fmaf_rn (a.y, r, -e);
