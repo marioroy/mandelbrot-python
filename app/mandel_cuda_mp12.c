@@ -3,7 +3,7 @@
 //
 // Optimization flags defined in ../mandel_cuda.py:
 //
-//   FMA_OFF  GPU matches CPU output (default).
+//   FMA_OFF  GPU matches CPU output (default) i.e. mandel_stream.py.
 //   FMA_ON   Enable the Fused-Multiply-Add instruction.
 //
 //   MIXED_PREC1  integer comparison; this may run faster depending on GPU
