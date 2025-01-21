@@ -183,7 +183,7 @@ __device__ __forceinline__ dfloat_t div_dfloat (const dfloat_t a, const dfloat_t
 {
     dfloat_t t, z;
     float e, r;
-    r = (float)(1.0) / b.y;
+    r = 1.0f / b.y;
     t.y = __fmul_rn (a.y, r);
     e = __fmaf_rn (b.y, -t.y, a.y);
     t.y = __fmaf_rn (r, e, t.y);
@@ -204,10 +204,10 @@ __device__ __forceinline__ dfloat_t sqrt_dfloat (const dfloat_t a)
     dfloat_t t, z;
     float e, y, s, r;
     r = rsqrt (a.y);
-    if (a.y == (float)(0.0)) r = (float)(0.0);
+    if (a.y == 0.0f) r = 0.0f;
     y = __fmul_rn (a.y, r);
     s = __fmaf_rn (y, -y, a.y);
-    r = __fmul_rn ((float)(0.5), r);
+    r = __fmul_rn (0.5f, r);
     z.y = e = __fadd_rn (s, a.x);
     z.x = __fadd_rn (s - e, a.x);
     t.y = __fmul_rn (r, z.y);
@@ -228,12 +228,12 @@ __device__ __forceinline__ dfloat_t rsqrt_dfloat (const dfloat_t a)
     float r, s, e;
     r = rsqrt (a.y);
     e = __fmul_rn (a.y, r);
-    s = __fmaf_rn (e, -r, (float)(1.0));
+    s = __fmaf_rn (e, -r, 1.0f);
     e = __fmaf_rn (a.y, r, -e);
     s = __fmaf_rn (e, -r, s);
     e = __fmul_rn (a.x, r);
     s = __fmaf_rn (e, -r, s);
-    e = (float)(0.5) * r;
+    e = 0.5f * r;
     z.y = __fmul_rn (e, s);
     z.x = __fmaf_rn (e, s, -z.y);
     s = __fadd_rn (r, z.y);
