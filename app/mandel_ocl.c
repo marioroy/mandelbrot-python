@@ -78,7 +78,7 @@ uchar4 get_color(
     __constant const short *colors, const double zreal_sqr,
     const double zimag_sqr, const int n );
 
-bool check_colors(
+static inline bool check_colors(
     const uchar4 c1, const uchar4 c2 );
 
 uchar4 mandel1(
@@ -119,7 +119,7 @@ uchar4 get_color(
     return c;
 }
 
-bool check_colors(
+static inline bool check_colors(
     const uchar4 c1, const uchar4 c2 )
 {
     if (abs((short)c2.x - c1.x) > 8) return true;
