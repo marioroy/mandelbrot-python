@@ -4,7 +4,7 @@
 //
 // Optimization flags defined in ../mandel_ocl.py:
 //
-//   FMA_OFF  GPU matches CPU output (default).
+//   FMA_OFF  GPU matches CPU output (default) i.e. mandel_stream.py.
 //   FMA_ON   Enable the Fused-Multiply-Add instruction.
 //
 //   MIXED_PREC1  integer comparison; this may run faster depending on GPU
@@ -35,7 +35,6 @@
 //
 
 #pragma OPENCL EXTENSION cl_khr_byte_addressable_store: enable
-#pragma OPENCL FP_CONTRACT OFF  // fma ON-OFF
 
 #if defined(cl_khr_fp64)  // Khronos extension available?
 #pragma OPENCL EXTENSION cl_khr_fp64: enable
@@ -46,8 +45,10 @@
 #endif
 
 #if defined(FMA_ON)
+#pragma OPENCL FP_CONTRACT ON
 #define _mad(a,b,c) mad(a,b,c)
 #else
+#pragma OPENCL FP_CONTRACT OFF
 #define _mad(a,b,c) a * b + c
 #endif
 
