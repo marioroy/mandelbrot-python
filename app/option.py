@@ -60,10 +60,10 @@ class Option(object):
         _opt(g, "--compiler-bindir", "str", "directory in which the host C compiler resides")
         p.add_option_group(g)
 
-        # mixed-prec=3 is supported by mandel_cuda, enables --fma=1
+        # mixed-prec=3 overrides fma=1
         g = OptionGroup(p, "GPU Options (mandel_cuda, mandel_ocl)")
-        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2,3]: 2")
         _opt(g, "--fma", "int", "select fused-multiply-add flag [0,1]: 0")
+        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2,3]: 2")
         p.add_option_group(g)
 
         p.set_defaults(
