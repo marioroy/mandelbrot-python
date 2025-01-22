@@ -4,7 +4,7 @@
 //
 // Optimization flags defined in ../mandel_ocl.py:
 //
-//   FMA_OFF  GPU matches CPU output (default) i.e. mandel_stream.py.
+//   FMA_OFF  GPU matches CPU output (default) i.e. mandel_queue.py.
 //   FMA_ON   Enable the Fused-Multiply-Add instruction.
 //
 //   MIXED_PREC1  integer comparison; this may run faster depending on GPU
@@ -46,10 +46,10 @@
 
 #if defined(FMA_ON)
 #pragma OPENCL FP_CONTRACT ON
-#define _mad(a,b,c) mad(a,b,c)
+#define _fma(a,b,c) fma(a,b,c)
 #else
 #pragma OPENCL FP_CONTRACT OFF
-#define _mad(a,b,c) a * b + c
+#define _fma(a,b,c) a * b + c
 #endif
 
 #define ESCAPE_RADIUS_2 (float) (RADIUS * RADIUS)
@@ -182,7 +182,7 @@ uchar4 mandel1(
                 // Compute 2 more iterations to decrease the error term.
                 // http://linas.org/art-gallery/escape/escape.html
                 for (int i = 0; i < 2; i++) {
-                    zimag.d = _mad(2.0 * zreal.d, zimag.d, cimag);
+                    zimag.d = _fma(2.0 * zreal.d, zimag.d, cimag);
                     zreal.d = zreal_sqr.d - zimag_sqr.d + creal;
                     zreal_sqr.d = zreal.d * zreal.d;
                     zimag_sqr.d = zimag.d * zimag.d;
@@ -191,7 +191,7 @@ uchar4 mandel1(
                 return get_color(colors, zreal_sqr.d, zimag_sqr.d, n + 3);
             }
 
-            zimag.d = _mad(2.0 * zreal.d, zimag.d, cimag);
+            zimag.d = _fma(2.0 * zreal.d, zimag.d, cimag);
             zreal.d = zreal_sqr.d - zimag_sqr.d + creal;
 
             // If the values are equal, than we are in a periodic loop.
@@ -252,7 +252,7 @@ uchar4 mandel2(
             // Compute 2 more iterations to decrease the error term.
             // http://linas.org/art-gallery/escape/escape.html
             for (int i = 0; i < 2; i++) {
-                zimag = _mad(2.0 * zreal, zimag, cimag);
+                zimag = _fma(2.0 * zreal, zimag, cimag);
                 zreal = zreal_sqr.d - zimag_sqr.d + creal;
                 zreal_sqr.d = zreal * zreal;
                 zimag_sqr.d = zimag * zimag;
@@ -261,7 +261,7 @@ uchar4 mandel2(
             return get_color(colors, zreal_sqr.d, zimag_sqr.d, n + 3);
         }
 
-        zimag = _mad(2.0 * zreal, zimag, cimag);
+        zimag = _fma(2.0 * zreal, zimag, cimag);
         zreal = zreal_sqr.d - zimag_sqr.d + creal;
     }
 
@@ -394,7 +394,7 @@ __kernel void mandelbrot2(
                 break;
             }
 
-            zimag = _mad(2.0 * zreal, zimag, cimag);
+            zimag = _fma(2.0 * zreal, zimag, cimag);
             zreal = zreal_sqr.d - zimag_sqr.d + creal;
         }
 
@@ -402,7 +402,7 @@ __kernel void mandelbrot2(
             // Compute 2 more iterations to decrease the error term.
             // http://linas.org/art-gallery/escape/escape.html
             for (int i = 0; i < 2; i++) {
-                zimag = _mad(2.0 * zreal, zimag, cimag);
+                zimag = _fma(2.0 * zreal, zimag, cimag);
                 zreal = zreal_sqr.d - zimag_sqr.d + creal;
                 zreal_sqr.d = zreal * zreal;
                 zimag_sqr.d = zimag * zimag;

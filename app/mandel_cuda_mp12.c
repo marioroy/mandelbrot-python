@@ -3,7 +3,7 @@
 //
 // Optimization flags defined in ../mandel_cuda.py:
 //
-//   FMA_OFF  GPU matches CPU output (default) i.e. mandel_stream.py.
+//   FMA_OFF  GPU matches CPU output (default) i.e. mandel_queue.py.
 //   FMA_ON   Enable the Fused-Multiply-Add instruction.
 //
 //   MIXED_PREC1  integer comparison; this may run faster depending on GPU
@@ -37,9 +37,9 @@
 // #include "mandel_cuda_common.h"  // included by ../mandel_cuda.py
 
 #if defined(FMA_ON)
-#define _mad(a,b,c) fma(a,b,c)
+#define _fma(a,b,c) fma(a,b,c)
 #else
-#define _mad(a,b,c) a * b + c
+#define _fma(a,b,c) a * b + c
 #endif
 
 #if defined(MIXED_PREC2)
@@ -124,7 +124,7 @@ __device__ uchar3 mandel1(
                 // Compute 2 more iterations to decrease the error term.
                 // http://linas.org/art-gallery/escape/escape.html
                 for (int i = 0; i < 2; i++) {
-                    zimag.d = _mad(2.0 * zreal.d, zimag.d, cimag);
+                    zimag.d = _fma(2.0 * zreal.d, zimag.d, cimag);
                     zreal.d = zreal_sqr.d - zimag_sqr.d + creal;
                     zreal_sqr.d = zreal.d * zreal.d;
                     zimag_sqr.d = zimag.d * zimag.d;
@@ -133,7 +133,7 @@ __device__ uchar3 mandel1(
                 return get_color(colors, zreal_sqr.d, zimag_sqr.d, n + 3);
             }
 
-            zimag.d = _mad(2.0 * zreal.d, zimag.d, cimag);
+            zimag.d = _fma(2.0 * zreal.d, zimag.d, cimag);
             zreal.d = zreal_sqr.d - zimag_sqr.d + creal;
 
             // If the values are equal, than we are in a periodic loop.
@@ -265,7 +265,7 @@ __global__ void mandelbrot2(
                 break;
             }
 
-            zimag = _mad(2.0 * zreal, zimag, cimag);
+            zimag = _fma(2.0 * zreal, zimag, cimag);
             zreal = zreal_sqr.d - zimag_sqr.d + creal;
         }
 
@@ -273,7 +273,7 @@ __global__ void mandelbrot2(
             // Compute 2 more iterations to decrease the error term.
             // http://linas.org/art-gallery/escape/escape.html
             for (int i = 0; i < 2; i++) {
-                zimag = _mad(2.0 * zreal, zimag, cimag);
+                zimag = _fma(2.0 * zreal, zimag, cimag);
                 zreal = zreal_sqr.d - zimag_sqr.d + creal;
                 zreal_sqr.d = zreal * zreal;
                 zimag_sqr.d = zimag * zimag;
