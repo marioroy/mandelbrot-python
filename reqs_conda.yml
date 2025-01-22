@@ -1,14 +1,14 @@
 channels:
-  - numba
-  - defaults
+  - conda-forge
 dependencies:
   - python=3.12
   - numba=0.60.0
-  - tbb
-  - tbb-devel
-  - pillow
   - appdirs
   - platformdirs
+  - siphash24
+  - tbb
+  - tbb-devel
   - MarkupSafe
   - mako
+  - pytools
   - typing-extensions
