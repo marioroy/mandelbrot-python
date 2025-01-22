@@ -69,7 +69,8 @@ class App(WindowPygame):
         # Instead, FMA is determined by the FMA_ON or FMA_OFF switch.
         options = [
             '-allow-unsupported-compiler',
-            '-fmad=false', '-prec-div=true', '-prec-sqrt=true',
+            '-fmad=true' if self.fma else '-fmad=false',
+            '-prec-div=true', '-prec-sqrt=true',
             '--compiler-options',
             '-DFMA_ON' if self.fma else '-DFMA_OFF',
             '-DRADIUS={}'.format(RADIUS),
@@ -82,6 +83,9 @@ class App(WindowPygame):
         elif os.path.exists('/usr/local/cuda/bin/gcc'):
             # Compile using GCC symbolic link, inside the cuda bin dir.
             options.insert(0, '--compiler-bindir=/usr/local/cuda/bin/gcc')
+        elif os.path.exists('/usr/local/bin/gcc-13') or os.path.exists('/usr/bin/gcc-13'):
+            # Compile using GCC 13, if available on the system.
+            options.insert(0, '--compiler-bindir=gcc-13')
         elif os.path.exists('/usr/local/bin/gcc-12') or os.path.exists('/usr/bin/gcc-12'):
             # Compile using GCC 12, if available on the system.
             options.insert(0, '--compiler-bindir=gcc-12')
