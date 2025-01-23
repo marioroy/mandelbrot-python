@@ -71,11 +71,11 @@ A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
 
 ```bash
 conda install pyopencl
-conda install intel-opencl-rt  # x86-64 Linux/Windows
+conda install intel-opencl-rt  # on x86-64 Linux or Windows
 ```
 
 On Linux and using NVIDIA graphics, copy the OpenCL loader definition to the
-conda path. Change the destination path accordingly, if different.
+conda path.
 
 ```bash
 cp /etc/OpenCL/vendors/nvidia.icd "$CONDA_PREFIX"/etc/OpenCL/vendors/
