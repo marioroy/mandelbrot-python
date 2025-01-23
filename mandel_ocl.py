@@ -60,7 +60,9 @@ class App(WindowPygame):
             filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl.c').replace(' ', '\\ ')
             with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
         else:
-            filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl_mp3.c').replace(' ', '\\ ')
+            # Oopsie... This code isn't published yet.
+            # filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl_mp3.c').replace(' ', '\\ ')
+            filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl.c').replace(' ', '\\ ')
             with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
 
         # Construct memory objects.
