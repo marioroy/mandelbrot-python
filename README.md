@@ -35,19 +35,31 @@ conda activate mandel
 Note: Choose one MKL or OpenBLAS support for NumPy.
 
 ```bash
+# create a conda environment
 conda create -n mandel python=3.12 "blas=*=mkl"
 conda create -n mandel python=3.12 "blas=*=openblas"
+
+# activate the conda environment
 conda activate mandel
 
+# prevent conda from switching the BLAS library, choose same one
+conda config --env --add pinned_packages "blas=*=mkl"
+conda config --env --add pinned_packages "blas=*=openblas"
+
+# install Numba
 conda install llvmlite numba                  # install latest
 conda install llvmlite==0.43.0 numba==0.60.0  # or specific release
 
+# install dependencies
 conda install appdirs platformdirs siphash24 tbb tbb-devel
 conda install MarkupSafe mako pytools typing-extensions
 ```
 
-For minimum space, install Pillow and Pygame via pip. This installs the
-imaging library and library for drawing and handling keyboard events.
+Installing the imaging library and library for drawing and handling keyboard
+events have a lot of dependencies. You can try `conda install pillow pygame`
+to see the list. Optionally, answer `n` to exit the installation.
+
+Preferably, install Pillow and Pygame via pip.
 
 ```bash
 pip install pillow pygame
