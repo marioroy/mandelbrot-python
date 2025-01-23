@@ -8,7 +8,7 @@ A demonstration for exploring the [Mandelbrot Set](https://en.wikipedia.org/wiki
 
 ## Preparation
 
-On GNU/Linux or UNIX derivative, refer to the OS specific instructions for CUDA installation. GCC 13 or older is required and must be in your path before newer GCC releases.
+On GNU/Linux or UNIX derivative, refer to the OS specific instructions for CUDA installation. Depending on the CUDA version, GCC 13 or older is required and must be in your path before newer GCC releases.
 
 On Windows, install [Build Tools for Visual Studio 2019](https://learn.microsoft.com/en-us/visualstudio/releases/2019/history#release-dates-and-build-numbers). Select only "Desktop Environment with C++" when installing. I tried version 16.11.25 from March 14, 2023, having no issues.
 
@@ -35,22 +35,22 @@ conda activate mandel
 Note: Choose one MKL or OpenBLAS support for NumPy.
 
 ```bash
-# create a conda environment
+# Create a conda environment.
 conda create -n mandel python=3.12 "blas=*=mkl"
 conda create -n mandel python=3.12 "blas=*=openblas"
 
-# activate the conda environment
+# Activate the conda environment.
 conda activate mandel
 
-# prevent conda from switching the BLAS library, choose same one
+# Prevent conda from switching the BLAS library, choose same one.
 conda config --env --add pinned_packages "blas=*=mkl"
 conda config --env --add pinned_packages "blas=*=openblas"
 
-# install Numba
+# Install Numba.
 conda install llvmlite numba                  # install latest
 conda install llvmlite==0.43.0 numba==0.60.0  # or specific release
 
-# install dependencies
+# Install dependencies.
 conda install appdirs platformdirs siphash24 tbb tbb-devel
 conda install MarkupSafe mako pytools typing-extensions
 ```
@@ -65,33 +65,45 @@ Alternately, install Pillow and Pygame via pip.
 pip install pillow pygame
 ```
 
-Install dependencies for `pyopencl` or `pycuda`.
-For `pycuda`, ensure the `nvcc` command is in your path.
+Install PyOpenCL from miniforge. It searches for OpenCL ICDs found in the
+conda env path i.e. `<conda-root>/envs/<env-name>/etc/OpenCL/vendors/`.
+A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
 
 ```bash
-# A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
-# Install Intel® oneAPI Runtime COMMON LIBRARIES package and
-# COMPILER-SPECIFIC Intel® oneAPI OpenCL* Runtime package.
-
-conda install intel-cmplr-lib-rt   # for x86-64 Linux/Windows
-conda install intel-opencl-rt      # for x86-64 Linux/Windows
-
-# On Linux, copy the NVIDIA Installable Client Driver (ICD) loader definition.
-# Change the destination path accordingly, if different.
-
-cp /etc/OpenCL/vendors/nvidia.icd ~/miniforge3/envs/mandel/etc/OpenCL/vendors/
-
-pip install pyopencl  # for CPU and GPU (optional)
-pip install pycuda    # for NVIDIA GPU  (optional)
+conda install pyopencl
+conda install intel-opencl-rt  # x86-64 Linux/Windows
 ```
 
-The `pycuda` module may require manual installation on Unix platforms.
-Adjust the root path accordingly, if different.
+On Linux and using NVIDIA graphics, copy the OpenCL loader definition to the
+conda path. Change the destination path accordingly, if different.
+
+```bash
+cp /etc/OpenCL/vendors/nvidia.icd "$CONDA_PREFIX"/etc/OpenCL/vendors/
+```
+
+Choose `pip` or `conda` for the PyCUDA installation. The former requires
+`nvcc` in your path and have a supported GCC version.
+
+```bash
+pip install pycuda    # use the system CUDA Toolkit installation
+conda install pycuda  # this installs the CUDA Toolkit dependency
+```
+
+In the event `pip` failed, you may try manual installation on Unix platforms.
+Adjust the path accordingly. Do this in the same conda environment.
 
 ```bash
 export CUDA_ROOT=/opt/cuda
 export CUDA_INC_DIR=$CUDA_ROOT/include
-export PATH=$PATH:$CUDA_ROOT/bin
+export PATH=$CUDA_ROOT/bin:$PATH
+
+# Set an environment to supported GCC path
+export NVCC_PREPEND_FLAGS="-ccbin=/path/to/supported/gcc/bin"
+
+# Another way is making symbolic links to supported compilers
+# and have the CUDA bin path searched first in your PATH env
+sudo ln -sf /usr/bin/gcc-12 $CUDA_ROOT/bin/gcc
+sudo ln -sf /usr/bin/g++-12 $CUDA_ROOT/bin/g++
 
 cd ~/Downloads
 
