@@ -59,7 +59,7 @@ Installing the imaging library and library for drawing and handling keyboard
 events have a lot of dependencies. You can try `conda install pillow pygame`
 to see the list. Optionally, answer `n` to exit the installation.
 
-Preferably, install Pillow and Pygame via pip.
+Alternately, install Pillow and Pygame via pip.
 
 ```bash
 pip install pillow pygame
