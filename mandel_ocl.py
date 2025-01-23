@@ -16,8 +16,7 @@ os.environ['CL_CONFIG_CPU_TBB_NUM_WORKERS'] = str(NUM_THREADS)  # Intel OpenCL C
 os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)          # AMD OpenCL CPU
 os.environ['POCL_MAX_PTHREAD_COUNT'] = str(NUM_THREADS)         # pocl CPU
 
-filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl.c').replace(' ', '\\ ')
-with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
+KERNEL_SOURCE = ""
 
 try:
     import pyopencl as cl
@@ -28,6 +27,7 @@ except ModuleNotFoundError:
 class App(WindowPygame):
 
     def __init__(self, opt):
+        global KERNEL_SOURCE
         super().__init__(opt)
 
         if not os.getenv('PYOPENCL_CTX'):
@@ -49,7 +49,19 @@ class App(WindowPygame):
 
         self.is_cuda = True if re.search("^NVIDIA CUDA", cl_plat.upper()) else False
         self.is_cpu = True if cl_type == cl.device_type.CPU else False
+
+        # Intel(R) FPGA Emulation Platform for OpenCL(TM)
+        if re.search("FPGA EMULATION", cl_plat.upper()):
+            self.is_cpu = True;
+
         print("[CPU]" if self.is_cpu else "[GPU]", cl_name)
+
+        if OPT.mixed_prec < 3 or self.is_cpu:
+            filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl.c').replace(' ', '\\ ')
+            with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
+        else:
+            filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl_mp3.c').replace(' ', '\\ ')
+            with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
 
         # Construct memory objects.
         self.colors = np.empty((GRADIENT_LENGTH, 3), dtype=np.ctypeslib.ctypes.c_int16)
