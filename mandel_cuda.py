@@ -79,10 +79,17 @@ class App(WindowPygame):
             '-DMIXED_PREC{}'.format(self.mixed_prec) ]
 
         if len(OPT.compiler_bindir) > 0:
+            # Use given bin path or compiler name.
             options.insert(0, '--compiler-bindir={}'.format(OPT.compiler_bindir))
+        elif "NVCC_PREPEND_FLAGS" in os.environ:
+            # Use system-wide or user setting e.g. -ccbin=/opt/cuda/bin
+            pass
         elif os.path.exists('/usr/local/cuda/bin/gcc'):
             # Compile using GCC symbolic link, inside the cuda bin dir.
             options.insert(0, '--compiler-bindir=/usr/local/cuda/bin/gcc')
+        elif os.path.exists('/usr/local/bin/gcc-13') or os.path.exists('/usr/bin/gcc-13'):
+            # Compile using GCC 13, if available on the system.
+            options.insert(0, '--compiler-bindir=gcc-13')
         elif os.path.exists('/usr/local/bin/gcc-12') or os.path.exists('/usr/bin/gcc-12'):
             # Compile using GCC 12, if available on the system.
             options.insert(0, '--compiler-bindir=gcc-12')
