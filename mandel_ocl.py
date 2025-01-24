@@ -13,8 +13,11 @@ from app.interface import WindowPygame
 
 NUM_THREADS = min(os.cpu_count(), max(1, OPT.num_threads))
 os.environ['CL_CONFIG_CPU_TBB_NUM_WORKERS'] = str(NUM_THREADS)  # Intel OpenCL CPU
-os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)          # AMD OpenCL CPU
-os.environ['POCL_MAX_PTHREAD_COUNT'] = str(NUM_THREADS)         # pocl CPU
+os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)          # Old AMD OpenCL CPU
+
+# https://portablecl.org/docs/html/using.html#tuning-pocl-behavior-with-env-variables
+os.environ['POCL_CPU_MAX_CU_COUNT'] = str(NUM_THREADS)
+os.environ['POCL_AFFINITY'] = "1"
 
 KERNEL_SOURCE = ""
 
@@ -56,14 +59,21 @@ class App(WindowPygame):
 
         print("[CPU]" if self.is_cpu else "[GPU]", cl_name)
 
+        filepath = os.path.join(os.path.dirname(__file__), \
+            'app', 'mandel_ocl.h').replace(' ', '\\ ')
+        with io.open(filepath, 'r', encoding='utf-8') as file:
+            KERNEL_SOURCE = file.read()
+
         if OPT.mixed_prec < 3 or self.is_cpu:
-            filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl.c').replace(' ', '\\ ')
-            with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
+            filepath = os.path.join(os.path.dirname(__file__), \
+                'app', 'mandel_ocl_mp12.c').replace(' ', '\\ ')
+            with io.open(filepath, 'r', encoding='utf-8') as file:
+                KERNEL_SOURCE = KERNEL_SOURCE + file.read()
         else:
-            # Oopsie... This code isn't published yet.
-            # filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl_mp3.c').replace(' ', '\\ ')
-            filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_ocl.c').replace(' ', '\\ ')
-            with io.open(filepath, 'r', encoding='utf-8') as file: KERNEL_SOURCE = file.read()
+            filepath = os.path.join(os.path.dirname(__file__), \
+                'app', 'mandel_ocl_mp3.c').replace(' ', '\\ ')
+            with io.open(filepath, 'r', encoding='utf-8') as file:
+                KERNEL_SOURCE = KERNEL_SOURCE + file.read()
 
         # Construct memory objects.
         self.colors = np.empty((GRADIENT_LENGTH, 3), dtype=np.ctypeslib.ctypes.c_int16)
