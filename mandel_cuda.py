@@ -17,19 +17,23 @@ if sys.platform != 'win32':
     lpath = os.getenv('LIBRARY_PATH') or ''
     os.environ['LIBRARY_PATH'] = lpath + ':/usr/local/cuda/lib64:/usr/local/cuda/lib'
 
-filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_cuda_common.h').replace(' ', '\\ ')
+filepath = os.path.join(os.path.dirname(__file__), \
+    'app', 'mandel_cuda.h').replace(' ', '\\ ')
 with io.open(filepath, 'r', encoding='utf-8') as file:
     KERNEL_SOURCE = file.read()
 
 if OPT.mixed_prec < 3:
-    filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_cuda_mp12.c').replace(' ', '\\ ')
+    filepath = os.path.join(os.path.dirname(__file__), \
+        'app', 'mandel_cuda_mp12.c').replace(' ', '\\ ')
     with io.open(filepath, 'r', encoding='utf-8') as file:
         KERNEL_SOURCE = KERNEL_SOURCE + file.read()
 else:
-    filepath = os.path.join(os.path.dirname(__file__), 'app', 'dfloat.h').replace(' ', '\\ ')
+    filepath = os.path.join(os.path.dirname(__file__), \
+        'app', 'dfloat.h').replace(' ', '\\ ')
     with io.open(filepath, 'r', encoding='utf-8') as file:
         KERNEL_SOURCE = KERNEL_SOURCE + file.read()
-    filepath = os.path.join(os.path.dirname(__file__), 'app', 'mandel_cuda_mp3.c').replace(' ', '\\ ')
+    filepath = os.path.join(os.path.dirname(__file__), \
+        'app', 'mandel_cuda_mp3.c').replace(' ', '\\ ')
     with io.open(filepath, 'r', encoding='utf-8') as file:
         KERNEL_SOURCE = KERNEL_SOURCE + file.read()
 

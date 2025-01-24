@@ -24,17 +24,17 @@
 //     #endif
 //
 // Depending on the GPU architecture, mixed_prec=1 may run faster than 2.
-// NVIDIA GeForce RTX 4070 Ti SUPER PyCUDA results (press x to start auto zoom).
+// NVIDIA GeForce RTX 4070 Ti SUPER CUDA results (press x to start auto zoom).
 //
-// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=0 --fma=0  # 6.2 secs
-// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=0 --fma=1  # 5.8 secs
-// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=1 --fma=0  # 5.9 secs
-// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=1 --fma=1  # 5.4 secs
-// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=2 --fma=0  # 5.2 secs
-// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=2 --fma=1  # 4.8 secs
+// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=0 --fma=0  # 6.1 secs
+// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=0 --fma=1  # 5.2 secs
+// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=1 --fma=0  # 5.8 secs
+// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=1 --fma=1  # 5.1 secs
+// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=2 --fma=0  # 5.1 secs
+// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=2 --fma=1  # 4.6 secs
 //
 
-// #include "mandel_cuda_common.h"  // included by ../mandel_cuda.py
+// #include "mandel_cuda.h"  // included by ../mandel_cuda.py
 
 #if defined(FMA_ON)
 #define _fma(a,b,c) fma(a,b,c)

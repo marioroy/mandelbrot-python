@@ -1,19 +1,16 @@
 //
 // CUDA C code for computing the Mandelbrot Set on the GPU.
 //
-// Optimization flags defined in ../mandel_cuda.py:
+// Optimization flag defined in ../mandel_cuda.py:
+//   MIXED_PREC3 float-float precision arithmetic and FMA (see dfloat.h)
+//   Pixelated near the end of the 64-bit range (--location 1)
 //
-//   MIXED_PREC3  float-float precision arithmetic and FMA (see dfloat.h)
-//     Pixelated near the end of the 64-bit range (--location 1)
-//
-// Depending on the GPU architecture, mixed_prec=1 may run faster than 2.
-// NVIDIA GeForce RTX 4070 Ti SUPER PyCUDA results (press x to start auto zoom).
-//
-// ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=3  # 2.5 secs
+// NVIDIA GeForce RTX 4070 Ti SUPER CUDA results (press x to start auto zoom).
+//   ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=3  # 2.4 secs
 //
 
-// #include "dfloat.h"              // included by ../mandel_cuda.py
-// #include "mandel_cuda_common.h"  // included by ../mandel_cuda.py
+// #include "dfloat.h"       /* included by ../mandel_cuda.py */
+// #include "mandel_cuda.h"  /* included by ../mandel_cuda.py */
 
 // functions
 

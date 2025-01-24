@@ -2,8 +2,8 @@
 // CUDA common C code for computing the Mandelbrot Set on the GPU.
 //
 
-#if !defined(MANDEL_CUDA_COMMON_H_)
-#define MANDEL_CUDA_COMMON_H_
+#if !defined(MANDEL_CUDA_H_)
+#define MANDEL_CUDA_H_
 
 #if defined(__cplusplus)
 extern "C" {
@@ -164,5 +164,5 @@ __global__ void unsharp_mask(
 }
 #endif /* __cplusplus */
 
-#endif /* MANDEL_CUDA_COMMON_H_ */
+#endif /* MANDEL_CUDA_H_ */
 
