@@ -20,7 +20,11 @@ Open a shell with Miniforge activated. On Windows, launch "Anaconda Prompt (mini
 
 ## Installation using Miniforge
 
-First, install [Miniforge](https://conda-forge.org/download/) for your platform using the default options. Re-open your command shell to begin the installation.
+First, install [Miniforge](https://conda-forge.org/download/) for your platform using the default options. Re-open your command shell to begin the installation. If you'd prefer that Conda's base environment not be activated on startup, run the following command when Conda is activated.
+
+```bash
+conda config --set auto_activate_base false
+```
 
 **Quick installation** using requirements file.
 
