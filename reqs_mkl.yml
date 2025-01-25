@@ -1,9 +1,12 @@
 channels:
   - conda-forge
+
 dependencies:
+  - "blas=*=mkl"
   - python=3.12
   - numba=0.60.0
   - appdirs
+  - pip
   - platformdirs
   - siphash24
   - tbb
@@ -12,3 +15,8 @@ dependencies:
   - mako
   - pytools
   - typing-extensions
+  - pyopencl
+
+  - pip:
+    - pillow
+    - pygame

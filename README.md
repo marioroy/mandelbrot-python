@@ -22,27 +22,38 @@ Open a shell with Miniforge activated. On Windows, launch "Anaconda Prompt (mini
 
 First, install [Miniforge](https://conda-forge.org/download/) for your platform using the default options. Re-open your command shell to begin the installation.
 
-**Quick installation** using requirements file. Skip this step if you
-prefer the OpenBLAS library over Intel's fast math library (MKL).
+**Quick installation** using requirements file.
+
+Note: Choose one Intel Math Kernel Library (MKL) or OpenBLAS support for NumPy.
 
 ```bash
-conda env create -n mandel --file reqs_conda.yml
+# Create Conda environment.
+conda env create -n mandel --file reqs_mkl.yml
+conda env create -n mandel --file reqs_openblas.yml
+
+# Activate the Conda environment.
 conda activate mandel
+
+# Prevent Conda from switching the BLAS library, choose same one.
+conda config --env --add pinned_packages "blas=*=mkl"
+conda config --env --add pinned_packages "blas=*=openblas"
+
+# Continue to "Using vendor-supplied OpenCL drivers"
 ```
 
-**Manual installation** allowing specific Python/Numba versions and BLAS library.
+**Manual installation** allowing specific Python/Numba versions.
 
 Note: Choose one MKL or OpenBLAS support for NumPy.
 
 ```bash
-# Create a conda environment.
+# Create a Conda environment.
 conda create -n mandel python=3.12 "blas=*=mkl"
 conda create -n mandel python=3.12 "blas=*=openblas"
 
-# Activate the conda environment.
+# Activate the Conda environment.
 conda activate mandel
 
-# Prevent conda from switching the BLAS library, choose same one.
+# Prevent Conda from switching the BLAS library, choose same one.
 conda config --env --add pinned_packages "blas=*=mkl"
 conda config --env --add pinned_packages "blas=*=openblas"
 
@@ -53,11 +64,15 @@ conda install llvmlite==0.43.0 numba==0.60.0  # or specific release
 # Install dependencies.
 conda install appdirs platformdirs siphash24 tbb tbb-devel
 conda install MarkupSafe mako pytools typing-extensions
+
+# Install PyOpenCL from miniforge versus pip. This way, searching ICDs
+# in <conda-root>/envs/<env-name>/etc/OpenCL/vendors/ is possible.
+conda install pyopencl
 ```
 
-Installing the imaging library and library for drawing and handling keyboard
-events have a lot of dependencies. You can try `conda install pillow pygame`
-to see the list. Optionally, answer `n` to exit the installation.
+The imaging library and library for drawing and handling keyboard events
+have many dependencies. You can try `conda install pillow pygame` to
+see the list. Optionally, answer `n` to exit the installation.
 
 Alternately, install Pillow and Pygame via pip.
 
@@ -65,21 +80,27 @@ Alternately, install Pillow and Pygame via pip.
 pip install pillow pygame
 ```
 
-Install PyOpenCL from miniforge. It searches for OpenCL ICDs found in the
-conda env path i.e. `<conda-root>/envs/<env-name>/etc/OpenCL/vendors/`.
+## Using vendor-supplied OpenCL drivers
+
+On Linux and using NVIDIA graphics, copy the OpenCL loader definition
+to the Conda path. Or install a Conda Forge package for the OpenCL
+ICD loader to look in `/etc/OpenCL/vendors`, as well.
+
+```bash
+# Copy the ICD file to the Conda environment path
+cp /etc/OpenCL/vendors/nvidia.icd "$CONDA_PREFIX"/etc/OpenCL/vendors/
+
+# Or install a package to include searching the `/etc` path
+conda install ocl-icd-system
+```
+
 A benefit using Intel's OpenCL CPU runtime is auto-vectorization.
 
 ```bash
-conda install pyopencl
 conda install intel-opencl-rt  # on x86-64 Linux or Windows
 ```
 
-On Linux and using NVIDIA graphics, copy the OpenCL loader definition to the
-conda path.
-
-```bash
-cp /etc/OpenCL/vendors/nvidia.icd "$CONDA_PREFIX"/etc/OpenCL/vendors/
-```
+## PyCUDA Installation
 
 Choose `pip` or `conda` for the PyCUDA installation. The former requires
 `nvcc` in your path and have a supported GCC version.
@@ -90,7 +111,7 @@ conda install pycuda  # this installs the CUDA Toolkit dependency
 ```
 
 In the event `pip` failed, you may try manual installation on Unix platforms.
-Adjust the path accordingly. Do this in the same conda environment.
+Adjust the path accordingly. Do this in the same Conda environment.
 
 ```bash
 export CUDA_ROOT=/opt/cuda

@@ -1,0 +1,22 @@
+channels:
+  - conda-forge
+
+dependencies:
+  - "blas=*=openblas"
+  - python=3.12
+  - numba=0.60.0
+  - appdirs
+  - pip
+  - platformdirs
+  - siphash24
+  - tbb
+  - tbb-devel
+  - MarkupSafe
+  - mako
+  - pytools
+  - typing-extensions
+  - pyopencl
+
+  - pip:
+    - pillow
+    - pygame
