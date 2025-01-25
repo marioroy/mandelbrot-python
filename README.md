@@ -179,18 +179,26 @@ Options:
 
   CUDA Options (mandel_cuda):
     --compiler-bindir  directory in which the C compiler resides
-                  (or) the compiler executable name can be specified
+                  (or) specify the compiler executable name
 
   GPU Options (mandel_cuda, mandel_ocl):
     --fma=ARG          select fused-multiply-add flag [0,1]: 0
-    --mixed-prec=ARG   select mixed-precision flag [0,1,2,3]: 2
-                       mixed-prec=3 overrides fma=1
-```
+    --mixed-prec=ARG   select mixed-precision flag [0,1,2,3,4]: 2
 
-Values exceeding the range specification are silently clipped to
-the respective minimum or maximum value. The number of iterations
-is computed dynamically based on the performance level
-(lower equals more iterations).
+    Depending on the architecture, mixed-prec=1 may run faster than 2.
+    0: double precision, fma=0 matching CPU results
+    1,2: slight mixed-precision and still matching CPU results (fma=0)
+    3: 1st sample double precision, supersampling float-float precision
+    4: 1st sample and supersampling float-float precision
+    mixed-prec=3,4 silently enables fma
+
+Epilog:
+  Values exceeding the range specification are silently clipped
+  to the respective minimum or maximum value.
+
+  The number of iterations is computed dynamically based on the
+  performance level (lower equals more iterations).
+```
 
 **Auto-zoom destinations**
 

@@ -17,15 +17,9 @@ class Option(object):
     def __init__(self):
 
         usage = "%prog [--config filepath [section]] [options]"
-        epilog = """
-          Values exceeding the range specification are silently clipped to
-          the respective minimum or maximum value. The number of iterations
-          is computed dynamically based on the performance level
-          (lower equals more iterations).
-          """
-        epilog = " ".join([line.lstrip() for line in epilog.splitlines()])
-
-        p = OptionParser(usage=usage, version="%prog 0.1.0", epilog=epilog)
+        p = OptionParser(add_help_option=False, usage=usage, version="%prog 1.0.0")
+        p.add_option("-h", "--help", dest="help", action="store_true",
+                     help="show this help message and exit")
 
         def _opt(parser, opt, t, h):
           if t is None:
@@ -60,10 +54,9 @@ class Option(object):
         _opt(g, "--compiler-bindir", "str", "directory in which the host C compiler resides")
         p.add_option_group(g)
 
-        # mixed-prec=3 overrides fma=1
         g = OptionGroup(p, "GPU Options (mandel_cuda, mandel_ocl)")
         _opt(g, "--fma", "int", "select fused-multiply-add flag [0,1]: 0")
-        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2,3]: 2")
+        _opt(g, "--mixed-prec", "int", "select mixed-precision flag [0,1,2,3,4]: 2")
         p.add_option_group(g)
 
         p.set_defaults(
@@ -79,11 +72,11 @@ class Option(object):
         (opt, args) = p.parse_args()
 
         # show usage
-        if len(args):
-            p.print_help()
-            sys.exit(2)
+        if opt.help or len(args):
+            print(""); p.print_help(); show_epilog(); print("")
+            sys.exit(0) if opt.help else sys.exit(2)
         if opt.shortcuts:
-            show_keyboard_shortcuts()
+            print(""); show_keyboard_shortcuts(); print("")
             sys.exit(0)
 
         # clamp to minimum-maximum values
@@ -95,7 +88,7 @@ class Option(object):
         self.color_scheme = max(1, min(7, opt.color_scheme))
         self.fast_zoom = max(0, min(1, opt.fast_zoom))
         self.smooth_bench = max(0, min(1, opt.smooth_bench))
-        self.mixed_prec = max(0, min(3, opt.mixed_prec))
+        self.mixed_prec = max(0, min(4, opt.mixed_prec))
         self.fma = max(0, min(1, opt.fma))
         self.center_x = opt.center_x
         self.center_y = opt.center_y
@@ -177,6 +170,25 @@ class Option(object):
 
         if len(opt):
             parser.set_defaults(**opt)
+
+
+def show_epilog():
+
+    print("""
+    Depending on the architecture, mixed-prec=1 may run faster than 2.
+    0: double precision, fma=0 matching CPU results
+    1,2: slight mixed-precision and still matching CPU results (fma=0)
+    3: 1st sample double precision, supersampling float-float precision
+    4: 1st sample and supersampling float-float precision
+    mixed-prec=3,4 silently enables fma
+
+Epilog:
+  Values exceeding the range specification are silently clipped
+  to the respective minimum or maximum value.
+
+  The number of iterations is computed dynamically based on the
+  performance level (lower equals more iterations).
+    """.strip())
 
 
 def show_keyboard_shortcuts():
