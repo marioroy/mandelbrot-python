@@ -25,7 +25,7 @@
 //     #endif
 //
 // Depending on the GPU architecture, mixed_prec=1 may run faster than 2.
-// NVIDIA GeForce RTX 4070 Ti SUPER OpenCL results (press x to start auto zoom).
+// NVIDIA GeForce RTX 4070 Ti SUPER OpenCL results (press x to start auto zoom)
 //
 // ./mandel_ocl.py --width=1600 --height=900 --mixed_prec=0 --fma=0  # 6.7 secs
 // ./mandel_ocl.py --width=1600 --height=900 --mixed_prec=0 --fma=1  # 5.4 secs
@@ -44,18 +44,6 @@
 #define _fma(a,b,c) a * b + c
 #endif
 
-#if defined(MIXED_PREC2)
-typedef union __attribute__((aligned(4))) {
-    float f;  // value
-    unsigned int i;  // bits
-} ufloat_t;
-#endif
-
-typedef union __attribute__((aligned(8))) {
-    double d;  // value
-    struct { unsigned int x, y; };  // bits
-} udouble_t;
-
 // functions
 
 static uchar4 get_color(
@@ -64,26 +52,13 @@ static uchar4 get_color(
 {
     double normz = sqrt(zreal_sqr + zimag_sqr);
     double mu;
-    uchar4 c;
 
     if (RADIUS > 2.0)
         mu = n + (log(2*log(RADIUS)) - log(log(normz))) / M_LN2;
     else
         mu = n + 0.5 - log(log(normz)) / M_LN2;
 
-    int i_mu = mu;
-    double dx = mu - i_mu;
-    int j_mu = dx > 0.0 ? i_mu + 1 : i_mu;
-
-    i_mu = (i_mu % GRADIENT_LENGTH) * 3;
-    j_mu = (j_mu % GRADIENT_LENGTH) * 3;
-
-    c.x = dx * (colors[j_mu+0] - colors[i_mu+0]) + colors[i_mu+0];
-    c.y = dx * (colors[j_mu+1] - colors[i_mu+1]) + colors[i_mu+1];
-    c.z = dx * (colors[j_mu+2] - colors[i_mu+2]) + colors[i_mu+2];
-    c.w = 0xff;
-
-    return c;
+    return _get_color(colors, mu);
 }
 
 static uchar4 mandel1(

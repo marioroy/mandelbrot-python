@@ -17,6 +17,16 @@ extern "C" {
 #define M_LN2 0.69314718055994530942  // log_e 2
 #endif
 
+typedef union {
+    float f;  // value
+    unsigned int i;  // bits
+} ufloat_t;
+
+typedef union {
+    double d;  // value
+    struct { unsigned int x, y; };  // bits
+} udouble_t;
+
 // common functions
 
 __device__ __forceinline__ uchar3 _get_color(

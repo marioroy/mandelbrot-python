@@ -5,8 +5,12 @@
 //   MIXED_PREC3 float-float precision arithmetic and FMA (see dfloat.h)
 //   Pixelated near the end of the 64-bit range (--location 1)
 //
-// NVIDIA GeForce RTX 4070 Ti SUPER CUDA results (press x to start auto zoom).
-//   ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=3  # 2.4 secs
+// mixed-prec=3 1st sample double, supersampling float-float precision
+// mixed-prec=4 1st sample and supersampling float-float precision
+//
+// NVIDIA GeForce RTX 4070 Ti SUPER CUDA results (press x to start auto zoom)
+//   ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=3  # 3.6 secs
+//   ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=4  # 2.4 secs
 //
 
 // #include "dfloat.h"       /* included by ../mandel_cuda.py */
@@ -14,7 +18,22 @@
 
 // functions
 
-__device__ uchar3 get_color(
+__device__ uchar3 get_color_d(
+    const short *colors, const double zreal_sqr,
+    const double zimag_sqr, const int n )
+{
+    double normz = sqrt(zreal_sqr + zimag_sqr);
+    double mu;
+
+    if (RADIUS > 2.0)
+        mu = n + (log(2*log(RADIUS)) - log(log(normz))) / M_LN2;
+    else
+        mu = n + 0.5 - log(log(normz)) / M_LN2;
+
+    return _get_color(colors, mu);
+}
+
+__device__ uchar3 get_color_mp(
     const short *colors, const dfloat_t zreal_sqr2,
     const dfloat_t zimag_sqr2, const int n )
 {
@@ -29,7 +48,83 @@ __device__ uchar3 get_color(
     return _get_color(colors, mu);
 }
 
-__device__ uchar3 mandel1(
+__device__ uchar3 mandel1_d(
+    const short *colors, const double creal, const double cimag,
+    const int max_iters )
+{
+    udouble_t zreal, zimag;
+    udouble_t zreal_sqr, zimag_sqr;
+    ufloat_t a, b;
+
+    // Main cardioid bulb test.
+    zreal.d = hypot(creal - 0.25, cimag);
+    if (creal < zreal.d - 2.0 * zreal.d * zreal.d + 0.25)
+        return INSIDE_COLOR2;
+
+    // Period-2 bulb test to the left of the cardioid.
+    zreal.d = creal + 1.0;
+    if (zreal.d * zreal.d + cimag * cimag < 0.0625)
+        return INSIDE_COLOR2;
+
+    // Periodicity checking i.e. escape early if we detect repetition.
+    // http://locklessinc.com/articles/mandelbrot/
+    udouble_t sreal, simag;
+    int n = 0;
+    int n_total = 8;
+
+    zreal.d = creal;
+    zimag.d = cimag;
+
+    do {
+        // Save values to test against.
+        sreal = zreal, simag = zimag;
+
+        // Test the next n iterations against those values.
+        n_total += n_total;
+        if (n_total > max_iters)
+            n_total = max_iters;
+
+        // Compute z = z^2 + c.
+        while (n < n_total) {
+            zreal_sqr.d = zreal.d * zreal.d;
+            zimag_sqr.d = zimag.d * zimag.d;
+
+            a.i = (zreal_sqr.y & 0xc0000000) | ((zreal_sqr.y & 0x7ffffff) << 3);
+            b.i = (zimag_sqr.y & 0xc0000000) | ((zimag_sqr.y & 0x7ffffff) << 3);
+            if (a.f + b.f > ESCAPE_RADIUS_2) {
+                // Compute 2 more iterations to decrease the error term.
+                // http://linas.org/art-gallery/escape/escape.html
+                for (int i = 0; i < 2; i++) {
+                    zimag.d = fma(2.0 * zreal.d, zimag.d, cimag);
+                    zreal.d = zreal_sqr.d - zimag_sqr.d + creal;
+                    zreal_sqr.d = zreal.d * zreal.d;
+                    zimag_sqr.d = zimag.d * zimag.d;
+                }
+
+                return get_color_d(colors, zreal_sqr.d, zimag_sqr.d, n + 3);
+            }
+
+            zimag.d = fma(2.0 * zreal.d, zimag.d, cimag);
+            zreal.d = zreal_sqr.d - zimag_sqr.d + creal;
+
+            // If the values are equal, than we are in a periodic loop.
+            // If not, the outer loop will save the new values and double
+            // the number of iterations to test with it.
+
+            if ( (zreal.x == sreal.x) && (zreal.y == sreal.y) &&
+                 (zimag.x == simag.x) && (zimag.y == simag.y) ) {
+                return INSIDE_COLOR1;
+            }
+
+            n += 1;
+        }
+
+    } while (n_total != max_iters);
+
+    return INSIDE_COLOR1;
+}
+
+__device__ uchar3 mandel1_mp(
     const short *colors, const double creal, const double cimag,
     const int max_iters )
 {
@@ -94,7 +189,7 @@ __device__ uchar3 mandel1(
                     zimag_sqr2 = mul_dfloat(zimag2, zimag2);
                 }
 
-                return get_color(colors, zreal_sqr2, zimag_sqr2, n + 3);
+                return get_color_mp(colors, zreal_sqr2, zimag_sqr2, n + 3);
             }
 
             // zimag = 2.0 * zreal * zimag + cimag;
@@ -135,7 +230,13 @@ __global__ void mandelbrot1(
     double cimag = min_y + (pos_y * step_y);
     double creal = min_x + (pos_x * step_x);
 
-    temp[__umul24(width, pos_y) + pos_x] = mandel1(colors, creal, cimag, max_iters);
+  #if defined(MIXED_PREC3)
+    // Double Precision arithmetic, FMA
+    temp[__umul24(width, pos_y) + pos_x] = mandel1_d(colors, creal, cimag, max_iters);
+  #else
+    // Float-Float Precision Arithmetic, FMA
+    temp[__umul24(width, pos_y) + pos_x] = mandel1_mp(colors, creal, cimag, max_iters);
+  #endif
 }
 
 __global__ void mandelbrot2(
@@ -257,7 +358,7 @@ __global__ void mandelbrot2(
                 // zimag_sqr = zimag * zimag;
                 zimag_sqr2 = mul_dfloat(zimag2, zimag2);
             }
-            color = get_color(colors, zreal_sqr2, zimag_sqr2, n + 3);
+            color = get_color_mp(colors, zreal_sqr2, zimag_sqr2, n + 3);
         }
         else
             color = INSIDE_COLOR1;

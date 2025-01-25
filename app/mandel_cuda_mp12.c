@@ -24,7 +24,7 @@
 //     #endif
 //
 // Depending on the GPU architecture, mixed_prec=1 may run faster than 2.
-// NVIDIA GeForce RTX 4070 Ti SUPER CUDA results (press x to start auto zoom).
+// NVIDIA GeForce RTX 4070 Ti SUPER CUDA results (press x to start auto zoom)
 //
 // ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=0 --fma=0  # 6.1 secs
 // ./mandel_cuda.py --width=1600 --height=900 --mixed_prec=0 --fma=1  # 5.2 secs
@@ -41,18 +41,6 @@
 #else
 #define _fma(a,b,c) a * b + c
 #endif
-
-#if defined(MIXED_PREC2)
-typedef union {
-    float f;  // value
-    unsigned int i;  // bits
-} ufloat_t;
-#endif
-
-typedef union {
-    double d;  // value
-    struct { unsigned int x, y; };  // bits
-} udouble_t;
 
 // functions
 

@@ -29,7 +29,36 @@
 #define M_LN2 0.69314718055994530942  // log_e 2
 #endif
 
+typedef union __attribute__((aligned(4))) {
+    float f;  // value
+    unsigned int i;  // bits
+} ufloat_t;
+
+typedef union __attribute__((aligned(8))) {
+    double d;  // value
+    struct { unsigned int x, y; };  // bits
+} udouble_t;
+
 // common functions
+
+static inline uchar4 _get_color(
+    __constant const short *colors, double mu )
+{
+    uchar4 c;
+    int i_mu = mu;
+    double dx = mu - i_mu;
+    int j_mu = dx > 0.0 ? i_mu + 1 : i_mu;
+
+    i_mu = (i_mu % GRADIENT_LENGTH) * 3;
+    j_mu = (j_mu % GRADIENT_LENGTH) * 3;
+
+    c.x = dx * (colors[j_mu+0] - colors[i_mu+0]) + colors[i_mu+0];
+    c.y = dx * (colors[j_mu+1] - colors[i_mu+1]) + colors[i_mu+1];
+    c.z = dx * (colors[j_mu+2] - colors[i_mu+2]) + colors[i_mu+2];
+    c.w = 0xff;
+
+    return c;
+}
 
 static inline bool check_colors(
     const uchar4 c1, const uchar4 c2 )
