@@ -390,11 +390,11 @@ class WindowPygame(Base):
             self.init_offset()
             self.display()
 
-        elif symbol in (pg.K_LEFTBRACKET, pg.K_PAGEDOWN):  # zoom in
+        elif symbol in (pg.K_RIGHTBRACKET, pg.K_PAGEDOWN):  # zoom in
             if 1 / self.magf * self.zoom_scale <= 2e13:
                 self.__handle_zoom(1 / self.magf, 1)
 
-        elif symbol in (pg.K_RIGHTBRACKET, pg.K_PAGEUP):  # zoom out
+        elif symbol in (pg.K_LEFTBRACKET, pg.K_PAGEUP):  # zoom out
             if self.magf * self.zoom_scale >= 0.15:
                 self.__handle_zoom(self.magf, -1)
 

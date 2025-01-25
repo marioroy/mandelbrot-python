@@ -17,7 +17,7 @@ class Option(object):
     def __init__(self):
 
         usage = "%prog [--config filepath [section]] [options]"
-        p = OptionParser(add_help_option=False, usage=usage, version="%prog 1.0.0")
+        p = OptionParser(add_help_option=False, usage=usage, version="%prog 1.0.1")
         p.add_option("-h", "--help", dest="help", action="store_true",
                      help="show this help message and exit")
 
@@ -199,8 +199,8 @@ Keyboard shortcuts:
   Zooming does not exceed double-precision limit.
   q)         terminate the application and exit
   r) Home)   reset window back to the home location
-  [) PageDn) zoom in from the center of the window
-  ]) PageUp) zoom out from the center of the window
+  ]) PageDn) zoom in from the center of the window
+  [) PageUp) zoom out from the center of the window
   e)         export the window RGB values to image.png
   a) Left)   scroll window left
   s) Down)   scroll window down

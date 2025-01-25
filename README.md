@@ -220,8 +220,8 @@ Zooming does not exceed double-precision limit.
 ```text
 q)         terminate the application and exit
 r) Home)   reset window back to the home location
-[) PageDn) zoom in from the center of the window
-]) PageUp) zoom out from the center of the window
+]) PageDn) zoom in from the center of the window
+[) PageUp) zoom out from the center of the window
 e)         export the window RGB values to image.png
 a) Left)   scroll window left
 s) Down)   scroll window down
