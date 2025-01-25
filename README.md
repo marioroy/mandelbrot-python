@@ -65,6 +65,10 @@ conda config --env --add pinned_packages "blas=*=openblas"
 conda install llvmlite numba                  # install latest
 conda install llvmlite==0.43.0 numba==0.60.0  # or specific release
 
+# The CUDA target built-in to Numba is deprecated, with further
+# development moved to the NVIDIA numba-cuda package.
+conda install numba-cuda=0.3.0
+
 # Install dependencies.
 conda install appdirs platformdirs siphash24 tbb tbb-devel
 conda install MarkupSafe mako pytools typing-extensions
