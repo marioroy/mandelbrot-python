@@ -71,7 +71,7 @@ class App(WindowPygame):
                 KERNEL_SOURCE = KERNEL_SOURCE + file.read()
         else:
             filepath = os.path.join(os.path.dirname(__file__), \
-                'app', 'mandel_ocl_mp3.c').replace(' ', '\\ ')
+                'app', 'mandel_ocl_mp34.c').replace(' ', '\\ ')
             with io.open(filepath, 'r', encoding='utf-8') as file:
                 KERNEL_SOURCE = KERNEL_SOURCE + file.read()
 

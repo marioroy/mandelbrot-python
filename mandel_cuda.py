@@ -33,7 +33,7 @@ else:
     with io.open(filepath, 'r', encoding='utf-8') as file:
         KERNEL_SOURCE = KERNEL_SOURCE + file.read()
     filepath = os.path.join(os.path.dirname(__file__), \
-        'app', 'mandel_cuda_mp3.c').replace(' ', '\\ ')
+        'app', 'mandel_cuda_mp34.c').replace(' ', '\\ ')
     with io.open(filepath, 'r', encoding='utf-8') as file:
         KERNEL_SOURCE = KERNEL_SOURCE + file.read()
 
