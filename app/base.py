@@ -125,7 +125,7 @@ class Base(object):
             # Bright qualitative colour scheme, courtesy of Paul Tol.
             # https://personal.sron.nl/~pault/
             p = np.empty((8,3), dtype=np.ctypeslib.ctypes.c_int16)
-            p[0], p[p.shape[0] - 1] = (0,0,0), (8,8,8)
+            p[0], p[p.shape[0] - 1] = (0,2,0), (8,8,8)
             p[1] = (0x44,0x77,0xaa)
             p[2] = (0x66,0xcc,0xee)
             p[3] = (0x22,0x88,0x33)
@@ -135,37 +135,34 @@ class Base(object):
             self.fill_linear(p)
         elif self.color_scheme == 2:
             p = np.empty((5,3), dtype=np.ctypeslib.ctypes.c_int16)
-            p[0], p[p.shape[0] - 1] = (0,0,0), (8,8,8)
+            p[0], p[p.shape[0] - 1] = (0,2,0), (8,8,8)
             p[1] = (0x65,0xbf,0xa1)
             p[2] = (0x2d,0x95,0xeb)
             p[3] = (0xee,0x4b,0x2f)
             self.fill_linear(p)
         elif self.color_scheme == 3:
             p = np.empty((5,3), dtype=np.ctypeslib.ctypes.c_int16)
-            p[0], p[p.shape[0] - 1] = (0,0,0), (8,8,8)
+            p[0], p[p.shape[0] - 1] = (0,2,0), (8,8,8)
             p[1] = (0xfb,0xc9,0x65)
             p[2] = (0x65,0xcb,0xca)
             p[3] = (0xf8,0x64,0x64)
             self.fill_linear(p)
         elif self.color_scheme == 4:
             p = np.empty((5,3), dtype=np.ctypeslib.ctypes.c_int16)
-            p[0], p[p.shape[0] - 1] = (0,0,0), (8,8,8)
+            p[0], p[p.shape[0] - 1] = (0,2,0), (8,8,8)
             p[1] = (0x77,0xaa,0xdd)
             p[2] = (0xff,0xaa,0xbb)
             p[3] = (0xaa,0xaa,0x00)
             self.fill_linear(p)
 
-        # Coloring using random values.
+        # Coloring using Ultra Fractal color scheme.
+        # Replaced 0,7,100 with 20,20,20 for smoother gradients.
         elif self.color_scheme == 5:
-            random.seed(13)
-            p = np.empty((4,3), dtype=np.ctypeslib.ctypes.c_int16)
-            p[0], p[p.shape[0] - 1] = (0,0,0), (8,8,8)
-
-            for i in range(1, p.shape[0] - 1):
-                p[i][0] = random.uniform(0.0, 1.0) * 155 + 100
-                p[i][1] = random.uniform(0.0, 1.0) * 155 + 100
-                p[i][2] = random.uniform(0.0, 1.0) * 155 + 100
-
+            p = np.empty((5,3), dtype=np.ctypeslib.ctypes.c_int16)
+            p[0], p[p.shape[0] - 1] = (0,2,0), (20,20,20)
+            p[1] = (0x20,0x6b,0xcb)
+            p[2] = (0xed,0xff,0xff)
+            p[3] = (0xff,0xaa,0x00)
             self.fill_linear(p)
 
         # Coloring using a slight modification of Bernstein polynomials.
