@@ -65,11 +65,11 @@ def _mandel1(colors, creal, cimag, max_iters):
 
     # Main cardioid bulb test.
     zreal = math.hypot(creal - 0.25, cimag)
-    if creal < zreal - 2 * zreal * zreal + 0.25:
+    if creal < zreal - 2.0 * zreal * zreal + 0.25:
         return INSIDE_COLOR2
 
     # Period-2 bulb test to the left of the cardioid.
-    zreal = creal + 1
+    zreal = creal + 1.0
     if zreal * zreal + cimag * cimag < 0.0625:
         return INSIDE_COLOR2
 
@@ -100,14 +100,14 @@ def _mandel1(colors, creal, cimag, max_iters):
                 # Compute 2 more iterations to decrease the error term.
                 # http://linas.org/art-gallery/escape/escape.html
                 for _ in range(2):
-                    zimag = 2 * zreal * zimag + cimag
+                    zimag = 2.0 * zreal * zimag + cimag
                     zreal = zreal_sqr - zimag_sqr + creal
                     zreal_sqr = zreal * zreal
                     zimag_sqr = zimag * zimag
 
                 return get_color(colors, zreal_sqr, zimag_sqr, n + 3)
 
-            zimag = 2 * zreal * zimag + cimag
+            zimag = 2.0 * zreal * zimag + cimag
             zreal = zreal_sqr - zimag_sqr + creal
 
             # If the values are equal, than we are in a periodic loop.
@@ -125,18 +125,18 @@ def _mandel1(colors, creal, cimag, max_iters):
 
 mandel1 = \
     cuda.jit(device=True)(_mandel1) if USE_CUDA else \
-    njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)(_mandel1)
+    njit('UniTuple(u1,3)(i2[:,:], f8, f8, i4)', nogil=True)(_mandel1)
 
 
 def _mandel2(colors, creal, cimag, max_iters):
 
     # Main cardioid bulb test.
     zreal = math.hypot(creal - 0.25, cimag)
-    if creal < zreal - 2 * zreal * zreal + 0.25:
+    if creal < zreal - 2.0 * zreal * zreal + 0.25:
         return INSIDE_COLOR2
 
     # Period-2 bulb test to the left of the cardioid.
-    zreal = creal + 1
+    zreal = creal + 1.0
     if zreal * zreal + cimag * cimag < 0.0625:
         return INSIDE_COLOR2
 
@@ -152,19 +152,19 @@ def _mandel2(colors, creal, cimag, max_iters):
             # Compute 2 more iterations to decrease the error term.
             # http://linas.org/art-gallery/escape/escape.html
             for _ in range(2):
-                zimag = 2 * zreal * zimag + cimag
+                zimag = 2.0 * zreal * zimag + cimag
                 zreal = zreal_sqr - zimag_sqr + creal
                 zreal_sqr = zreal * zreal
                 zimag_sqr = zimag * zimag
 
             return get_color(colors, zreal_sqr, zimag_sqr, n + 3)
 
-        zimag = 2 * zreal * zimag + cimag
+        zimag = 2.0 * zreal * zimag + cimag
         zreal = zreal_sqr - zimag_sqr + creal
 
     return INSIDE_COLOR1
 
 mandel2 = \
     "Not used" if USE_CUDA else \
-    njit('UniTuple(u1,3)(i2[:,:], f8, f8, u4)', nogil=True)(_mandel2)
+    njit('UniTuple(u1,3)(i2[:,:], f8, f8, i4)', nogil=True)(_mandel2)
 

@@ -83,14 +83,14 @@ def mandelbrot2(temp, colors, width, height, min_x, min_y, step_x, step_y, max_i
 
         # Main cardioid bulb test.
         zreal = math.hypot(creal - 0.25, cimag)
-        if creal < zreal - 2 * zreal * zreal + 0.25:
+        if creal < zreal - 2.0 * zreal * zreal + 0.25:
             r = int32(r + INSIDE_COLOR2[0])
             g = int32(g + INSIDE_COLOR2[1])
             b = int32(b + INSIDE_COLOR2[2])
             continue
 
         # Period-2 bulb test to the left of the cardioid.
-        zreal = creal + 1
+        zreal = creal + 1.0
         if zreal * zreal + cimag * cimag < 0.0625:
             r = int32(r + INSIDE_COLOR2[0])
             g = int32(g + INSIDE_COLOR2[1])
@@ -108,14 +108,14 @@ def mandelbrot2(temp, colors, width, height, min_x, min_y, step_x, step_y, max_i
             if zreal_sqr + zimag_sqr > ESCAPE_RADIUS_2:
                 outside = True
                 break
-            zimag = 2 * zreal * zimag + cimag
+            zimag = 2.0 * zreal * zimag + cimag
             zreal = zreal_sqr - zimag_sqr + creal
 
         if outside:
             # Compute 2 more iterations to decrease the error term.
             # http://linas.org/art-gallery/escape/escape.html
             for _ in range(2):
-                zimag = 2 * zreal * zimag + cimag
+                zimag = 2.0 * zreal * zimag + cimag
                 zreal = zreal_sqr - zimag_sqr + creal
                 zreal_sqr = zreal * zreal
                 zimag_sqr = zimag * zimag
