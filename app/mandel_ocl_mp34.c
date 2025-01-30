@@ -145,7 +145,7 @@ static uchar4 get_color_mp(
     __constant const short *colors, const dfloat_t zreal_sqr2,
     const dfloat_t zimag_sqr2, const int n )
 {
-    dfloat_t normz2 = sqrt_dfloat(mul_dfloat(zreal_sqr2, zimag_sqr2));
+    dfloat_t normz2 = sqrt_dfloat(add_dfloat(zreal_sqr2, zimag_sqr2));
     double mu;
 
     if (RADIUS > 2.0)
