@@ -34,10 +34,10 @@ __device__ uchar3 get_color_d(
 }
 
 __device__ uchar3 get_color_mp(
-    const short *colors, const dfloat_t zreal_sqr2,
-    const dfloat_t zimag_sqr2, const int n )
+    const short *colors, const dfloat_t zreal2_sqr,
+    const dfloat_t zimag2_sqr, const int n )
 {
-    dfloat_t normz2 = sqrt_dfloat(add_dfloat(zreal_sqr2, zimag_sqr2));
+    dfloat_t normz2 = sqrt_dfloat(add_dfloat(zreal2_sqr, zimag2_sqr));
     double mu;
 
     if (RADIUS > 2.0)
@@ -147,7 +147,7 @@ __device__ uchar3 mandel1_mp(
     int n_total = 8;
 
     dfloat_t two2 = make_dfloat(2.0);
-    dfloat_t zreal_sqr2, zimag_sqr2;
+    dfloat_t zreal2_sqr, zimag2_sqr;
     dfloat_t creal2 = make_dfloat(creal);
     dfloat_t cimag2 = make_dfloat(cimag);
     dfloat_t zreal2 = creal2;
@@ -166,11 +166,11 @@ __device__ uchar3 mandel1_mp(
         // Compute z = z^2 + c.
         while (n < n_total) {
             // zreal_sqr = zreal * zreal;
-            zreal_sqr2 = mul_dfloat(zreal2, zreal2);
+            zreal2_sqr = mul_dfloat(zreal2, zreal2);
             // zimag_sqr = zimag * zimag;
-            zimag_sqr2 = mul_dfloat(zimag2, zimag2);
+            zimag2_sqr = mul_dfloat(zimag2, zimag2);
 
-            if (get_dfloat_head(zreal_sqr2) + get_dfloat_head(zimag_sqr2) > ESCAPE_RADIUS_2) {
+            if (get_dfloat_head(zreal2_sqr) + get_dfloat_head(zimag2_sqr) > ESCAPE_RADIUS_2) {
                 // Compute 2 more iterations to decrease the error term.
                 // http://linas.org/art-gallery/escape/escape.html
                 for (int i = 0; i < 2; i++) {
@@ -180,16 +180,16 @@ __device__ uchar3 mandel1_mp(
                     zimag2 = add_dfloat(ztemp2, cimag2);
 
                     // zreal = zreal_sqr - zimag_sqr + creal;
-                    ztemp2 = sub_dfloat(zreal_sqr2, zimag_sqr2);
+                    ztemp2 = sub_dfloat(zreal2_sqr, zimag2_sqr);
                     zreal2 = add_dfloat(ztemp2, creal2);
 
                     // zreal_sqr = zreal * zreal;
-                    zreal_sqr2 = mul_dfloat(zreal2, zreal2);
+                    zreal2_sqr = mul_dfloat(zreal2, zreal2);
                     // zimag_sqr = zimag * zimag;
-                    zimag_sqr2 = mul_dfloat(zimag2, zimag2);
+                    zimag2_sqr = mul_dfloat(zimag2, zimag2);
                 }
 
-                return get_color_mp(colors, zreal_sqr2, zimag_sqr2, n + 3);
+                return get_color_mp(colors, zreal2_sqr, zimag2_sqr, n + 3);
             }
 
             // zimag = 2.0 * zreal * zimag + cimag;
@@ -198,7 +198,7 @@ __device__ uchar3 mandel1_mp(
             zimag2 = add_dfloat(ztemp2, cimag2);
 
             // zreal = zreal_sqr - zimag_sqr + creal;
-            ztemp2 = sub_dfloat(zreal_sqr2, zimag_sqr2);
+            ztemp2 = sub_dfloat(zreal2_sqr, zimag2_sqr);
             zreal2 = add_dfloat(ztemp2, creal2);
 
             // If the values are equal, than we are in a periodic loop.
@@ -287,7 +287,7 @@ __global__ void mandelbrot2(
 
     double zreal;
     dfloat_t two2 = make_dfloat(2.0);
-    dfloat_t zreal_sqr2, zimag_sqr2;
+    dfloat_t zreal2_sqr, zimag2_sqr;
     dfloat_t ztemp1, ztemp2;
     int n;
     bool outside;
@@ -321,11 +321,11 @@ __global__ void mandelbrot2(
 
         for (n = 0; n < max_iters; n++) {
             // zreal_sqr = zreal * zreal;
-            zreal_sqr2 = mul_dfloat(zreal2, zreal2);
+            zreal2_sqr = mul_dfloat(zreal2, zreal2);
             // zimag_sqr = zimag * zimag;
-            zimag_sqr2 = mul_dfloat(zimag2, zimag2);
+            zimag2_sqr = mul_dfloat(zimag2, zimag2);
 
-            if (get_dfloat_head(zreal_sqr2) + get_dfloat_head(zimag_sqr2) > ESCAPE_RADIUS_2) {
+            if (get_dfloat_head(zreal2_sqr) + get_dfloat_head(zimag2_sqr) > ESCAPE_RADIUS_2) {
                 outside = true;
                 break;
             }
@@ -336,7 +336,7 @@ __global__ void mandelbrot2(
             zimag2 = add_dfloat(ztemp2, cimag2);
 
             // zreal = zreal_sqr - zimag_sqr + creal;
-            ztemp2 = sub_dfloat(zreal_sqr2, zimag_sqr2);
+            ztemp2 = sub_dfloat(zreal2_sqr, zimag2_sqr);
             zreal2 = add_dfloat(ztemp2, creal2);
         }
 
@@ -350,15 +350,15 @@ __global__ void mandelbrot2(
                 zimag2 = add_dfloat(ztemp2, cimag2);
 
                 // zreal = zreal_sqr - zimag_sqr + creal;
-                ztemp2 = sub_dfloat(zreal_sqr2, zimag_sqr2);
+                ztemp2 = sub_dfloat(zreal2_sqr, zimag2_sqr);
                 zreal2 = add_dfloat(ztemp2, creal2);
 
                 // zreal_sqr = zreal * zreal;
-                zreal_sqr2 = mul_dfloat(zreal2, zreal2);
+                zreal2_sqr = mul_dfloat(zreal2, zreal2);
                 // zimag_sqr = zimag * zimag;
-                zimag_sqr2 = mul_dfloat(zimag2, zimag2);
+                zimag2_sqr = mul_dfloat(zimag2, zimag2);
             }
-            color = get_color_mp(colors, zreal_sqr2, zimag_sqr2, n + 3);
+            color = get_color_mp(colors, zreal2_sqr, zimag2_sqr, n + 3);
         }
         else
             color = INSIDE_COLOR1;
