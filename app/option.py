@@ -187,8 +187,7 @@ Epilog:
   to the respective minimum or maximum value.
 
   The number of iterations is computed dynamically based on the
-  performance level (lower equals more iterations).
-    """.strip())
+  performance level (lower equals more iterations).""")
 
 
 def show_keyboard_shortcuts():
