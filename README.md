@@ -110,12 +110,13 @@ conda install intel-opencl-rt  # on x86-64 Linux or Windows
 
 ## PyCUDA Installation
 
-Choose `pip` or `conda` for the PyCUDA installation. The former requires
-`nvcc` in your path and have a supported GCC version.
+Choose `conda` or `pip` for the PyCUDA installation. The former requires
+the least amount of effort. The latter requires `nvcc` in your path and
+have a supported GCC version.
 
 ```bash
-pip install pycuda    # use the system CUDA Toolkit installation
-conda install pycuda  # this installs the CUDA Toolkit dependency
+conda install pycuda cuda-nvcc=12.6
+pip install pycuda   # prefer system CUDA Toolkit installation
 ```
 
 In the event `pip` failed, you may try manual installation on Unix platforms.
@@ -165,17 +166,16 @@ python3 mandel_queue.py --config=app.ini 720p --num-samples=3
 python3 mandel_queue.py --location 5
 ```
 
-The `mandel_cuda.py` example may require an older GCC. If the `gcc`
-symbolic link  exists where `nvcc` resides, then the `--compiler-bindir`
-option may be omitted.
+The `mandel_cuda.py` example may require an older GCC if using the
+system CUDA installation.
 
 ```text
 # Checks /usr/local/cuda/bin/gcc, gcc-13, gcc-12, gcc-11, gcc-10, or gcc.
 # Typically, /usr/local/cuda is a symbolic link to /opt/cuda* path.
 
 python3 mandel_cuda.py
-python3 mandel_cuda.py --compiler-bindir=/usr/bin/gcc-12
-python3 mandel_cuda.py --compiler-bindir=gcc-12
+python3 mandel_cuda.py --ccbin=/usr/bin/gcc-12
+python3 mandel_cuda.py --ccbin=gcc-12
 ```
 
 ## Usage
@@ -207,8 +207,8 @@ Options:
     --num-threads=ARG  number of threads to use: auto
 
   CUDA Options (mandel_cuda):
-    --compiler-bindir  directory in which the C compiler resides
-                  (or) specify the compiler executable name
+    --ccbin            directory in which the C compiler resides
+                       (or) specify the compiler executable name
 
   GPU Options (mandel_cuda, mandel_ocl):
     --fma=ARG          select fused-multiply-add flag [0,1]: 0

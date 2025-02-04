@@ -82,27 +82,27 @@ class App(WindowPygame):
             '-DMATRIX_LENGTH={}'.format(self.gaussian_kernel.shape[0]),
             '-DMIXED_PREC{}'.format(self.mixed_prec) ]
 
-        if len(OPT.compiler_bindir) > 0:
+        if len(OPT.ccbin) > 0:
             # Use given bin path or compiler name.
-            options.insert(0, '--compiler-bindir={}'.format(OPT.compiler_bindir))
+            options.insert(0, '-ccbin={}'.format(OPT.ccbin))
         elif "NVCC_PREPEND_FLAGS" in os.environ:
             # Use system-wide or user setting e.g. -ccbin=/opt/cuda/bin
             pass
         elif os.path.exists('/usr/local/cuda/bin/gcc'):
             # Compile using GCC symbolic link, inside the cuda bin dir.
-            options.insert(0, '--compiler-bindir=/usr/local/cuda/bin/gcc')
+            options.insert(0, '-ccbin=/usr/local/cuda/bin/gcc')
         elif os.path.exists('/usr/local/bin/gcc-13') or os.path.exists('/usr/bin/gcc-13'):
             # Compile using GCC 13, if available on the system.
-            options.insert(0, '--compiler-bindir=gcc-13')
+            options.insert(0, '-ccbin=gcc-13')
         elif os.path.exists('/usr/local/bin/gcc-12') or os.path.exists('/usr/bin/gcc-12'):
             # Compile using GCC 12, if available on the system.
-            options.insert(0, '--compiler-bindir=gcc-12')
+            options.insert(0, '-ccbin=gcc-12')
         elif os.path.exists('/usr/local/bin/gcc-11') or os.path.exists('/usr/bin/gcc-11'):
             # Compile using GCC 11, if available on the system.
-            options.insert(0, '--compiler-bindir=gcc-11')
+            options.insert(0, '-ccbin=gcc-11')
         elif os.path.exists('/usr/local/bin/gcc-10') or os.path.exists('/usr/bin/gcc-10'):
             # Compile using GCC 10, if available on the system.
-            options.insert(0, '--compiler-bindir=gcc-10')
+            options.insert(0, '-ccbin=gcc-10')
 
         try:
             self.cuda_prg = SourceModule(KERNEL_SOURCE, options=options)

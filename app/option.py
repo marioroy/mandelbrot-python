@@ -51,7 +51,7 @@ class Option(object):
         p.add_option_group(g)
 
         g = OptionGroup(p, "CUDA Options (mandel_cuda)")
-        _opt(g, "--compiler-bindir", "str", "directory in which the host C compiler resides")
+        _opt(g, "--ccbin", "str", "directory in which the host C compiler resides")
         p.add_option_group(g)
 
         g = OptionGroup(p, "GPU Options (mandel_cuda, mandel_ocl)")
@@ -62,7 +62,7 @@ class Option(object):
         p.set_defaults(
             width=800, height=500, center_x=-0.625, center_y=0.0, location=0,
             zoom_scale=0.95, num_samples=2, perf_level=25, color_scheme=1,
-            fast_zoom=1, smooth_bench=0, num_threads='auto', compiler_bindir='',
+            fast_zoom=1, smooth_bench=0, num_threads='auto', ccbin='',
             mixed_prec=2, fma=0 )
 
         # optionally, override defaults from a config file
@@ -93,7 +93,7 @@ class Option(object):
         self.center_x = opt.center_x
         self.center_y = opt.center_y
         self.zoom_scale = opt.zoom_scale
-        self.compiler_bindir = opt.compiler_bindir
+        self.ccbin = opt.ccbin
 
         # override fma option
         if self.mixed_prec > 2:
@@ -164,7 +164,7 @@ class Option(object):
             if config.has_option(section, key):
                 opt[key] = float(config.get(section, key))
 
-        for key in ('num_threads', 'compiler_bindir'):
+        for key in ('num_threads', 'ccbin'):
             if config.has_option(section, key):
                 opt[key] = str(config.get(section, key))
 
@@ -183,11 +183,10 @@ def show_epilog():
     mixed-prec=3,4 silently enables fma
 
 Epilog:
-  Values exceeding the range specification are silently clipped
-  to the respective minimum or maximum value.
-
-  The number of iterations is computed dynamically based on the
-  performance level (lower equals more iterations).""")
+  Values exceeding range specification are silently clipped to the
+  respective minimum or maximum value. The number of iterations is
+  computed dynamically based on the performance level (lower equals
+  more iterations).""")
 
 
 def show_keyboard_shortcuts():
