@@ -111,11 +111,16 @@ conda install intel-opencl-rt  # on x86-64 Linux or Windows
 ## PyCUDA Installation
 
 Choose `conda` or `pip` for the PyCUDA installation. The former requires
-the least amount of effort. The latter requires `nvcc` in your path and
-have a supported GCC version.
+the least amount of effort. Simply install `cuda-nvcc` matching or older
+than your display driver. The pip installation requires `nvcc` in your
+path and have a supported GCC version.
 
 ```bash
-conda install pycuda cuda-nvcc=12.6
+conda install pycuda cuda-nvcc==12.8.*   # running 570 driver 
+conda install pycuda cuda-nvcc==12.6.*   # running 560 driver 
+conda install pycuda cuda-nvcc==12.4.*   # running 550 driver 
+conda install pycuda cuda-nvcc==12.2.*   # running 535 driver 
+
 pip install pycuda   # prefer system CUDA Toolkit installation
 ```
 
