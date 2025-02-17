@@ -42,6 +42,9 @@ conda activate mandel
 conda config --env --add pinned_packages "blas=*=mkl"
 conda config --env --add pinned_packages "blas=*=openblas"
 
+# Pin the Numba version. mandel_kernel.py fails with 0.61.0.
+conda config --env --add pinned_packages "numba==0.60.0"
+
 # Continue to "Using vendor-supplied OpenCL drivers"
 ```
 
@@ -61,9 +64,11 @@ conda activate mandel
 conda config --env --add pinned_packages "blas=*=mkl"
 conda config --env --add pinned_packages "blas=*=openblas"
 
+# Pin the Numba version. mandel_kernel.py fails with 0.61.0.
+conda config --env --add pinned_packages "numba==0.60.0"
+
 # Install Numba.
-conda install llvmlite numba                  # install latest
-conda install llvmlite==0.43.0 numba==0.60.0  # or specific release
+conda install numba
 
 # The CUDA target built-in to Numba is deprecated, with further
 # development moved to the NVIDIA numba-cuda package.
@@ -123,6 +128,13 @@ conda install pycuda cuda-nvcc==12.8.*   # running 570 driver
 conda install pycuda cuda-nvcc==12.6.*   # running 560 driver 
 conda install pycuda cuda-nvcc==12.4.*   # running 550 driver 
 conda install pycuda cuda-nvcc==12.2.*   # running 535 driver 
+
+# Pin the CUDA version to prevent it from updating.
+# Specify the same version used in the prior step.
+
+conda config --env --add pinned_packages "cuda-nvcc==12.4.*"
+
+# Alternatively, install pycuda via pip.
 
 pip install pycuda   # prefer system CUDA Toolkit installation
 ```
