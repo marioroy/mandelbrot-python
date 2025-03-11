@@ -95,16 +95,22 @@ pip install pillow pygame
 
 ## Using vendor-supplied OpenCL drivers
 
-On Linux and using NVIDIA graphics, copy the OpenCL loader definition
-to the Conda path. Or install a Conda Forge package for the OpenCL
-ICD loader to look in `/etc/OpenCL/vendors`, as well.
+Using AMD graphics? Install the ROCm OpenCL Runtime via the OS package manager.
 
 ```bash
-# Copy the ICD file to the Conda environment path
-cp /etc/OpenCL/vendors/nvidia.icd "$CONDA_PREFIX"/etc/OpenCL/vendors/
+# Arch Linux, CachyOS
+sudo pacman -S rocm-opencl-runtime
+```
 
-# Or install a package to include searching the `/etc` path
+Install a Conda Forge package for the OpenCL ICD loader to look
+in `/etc/OpenCL/vendors` or copy the ICD files. Choose one.
+
+```bash
+# Install a package to include searching the `/etc` path
 conda install ocl-icd-system
+
+# Or copy the ICD file(s) to the Conda environment path
+cp /etc/OpenCL/vendors/*.icd "$CONDA_PREFIX"/etc/OpenCL/vendors/
 ```
 
 A benefit using Intel's OpenCL CPU runtime is auto-vectorization.

@@ -4,7 +4,7 @@
 Explore the Mandelbrot Set on the CPU or GPU using PyOpenCL.
 """
 
-import io, re, os, sys
+import io, re, os, platform, sys
 import numpy as np
 
 from app.option import OPT
@@ -18,6 +18,36 @@ os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)          # Old AMD OpenCL
 # https://portablecl.org/docs/html/using.html#tuning-pocl-behavior-with-env-variables
 os.environ['POCL_CPU_MAX_CU_COUNT'] = str(NUM_THREADS)
 os.environ['POCL_AFFINITY'] = "1"
+
+architecture = platform.machine()
+if architecture in ('x86_64', 'AMD64', 'x86'):
+    """
+    The Intel OpenCL Runtime may not know the host CPU automatically i.e. AMD Ryzen 9800X3D.
+    Set environment variable, if empty, to force a SIMD instruction set used for OpenCL
+    kernel compilation.
+    """
+    def get_lscpu_output():
+        import subprocess
+        try:
+            process = subprocess.run(['lscpu'], capture_output=True, text=True, check=True)
+            return process.stdout
+        except subprocess.CalledProcessError as e:
+            return f"error executing lscpu: {e}"
+        except FileNotFoundError:
+            return "lscpu: command not found"
+
+    cpu_target = os.getenv('CL_CONFIG_CPU_TARGET_ARCH', '')
+    if not cpu_target and os.name == 'posix' and platform.system() == 'Linux':
+        lscpu_output = get_lscpu_output()
+        if re.search(r" avx512f", lscpu_output):
+            os.environ['CL_CONFIG_CPU_TARGET_ARCH'] = 'skx'
+        elif re.search(r" avx2", lscpu_output):
+            os.environ['CL_CONFIG_CPU_TARGET_ARCH'] = 'core-avx2'
+        elif re.search(r" avx", lscpu_output):
+            os.environ['CL_CONFIG_CPU_TARGET_ARCH'] = 'corei7-avx'
+        else:
+            os.environ['CL_CONFIG_CPU_TARGET_ARCH'] = 'corei7'
+
 
 KERNEL_SOURCE = ""
 
@@ -45,8 +75,16 @@ class App(WindowPygame):
         cl_name = cl_ctx.devices[0].name.strip()
         cl_type = cl_ctx.devices[0].type
 
+        if re.search(r"^Clover", cl_plat):
+            print(f"[ERROR] The {cl_plat} platform is not supported.")
+            del cl_ctx
+            sys.exit(1)
         if re.search(r"^Intel\(R\) UHD Graphics", cl_name):
-            print(f"[ERROR] {cl_name} lacks double-precision capabilities.")
+            print(f"[ERROR] The {cl_name} lacks double-precision capabilities.")
+            del cl_ctx
+            sys.exit(1)
+        if re.search(r"^rusticl", cl_plat):
+            print(f"[ERROR] The {cl_plat} platform lacks double-precision capabilities.")
             del cl_ctx
             sys.exit(1)
 
