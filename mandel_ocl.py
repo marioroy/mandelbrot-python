@@ -15,6 +15,7 @@ NUM_THREADS = min(os.cpu_count(), max(1, OPT.num_threads))
 os.environ['CL_CONFIG_CPU_TBB_NUM_WORKERS'] = str(NUM_THREADS)  # Intel OpenCL CPU
 os.environ['CPU_MAX_COMPUTE_UNITS'] = str(NUM_THREADS)          # Old AMD OpenCL CPU
 
+# Tuning pocl behavior with ENV variables
 # https://portablecl.org/docs/html/using.html#tuning-pocl-behavior-with-env-variables
 os.environ['POCL_CPU_MAX_CU_COUNT'] = str(NUM_THREADS)
 os.environ['POCL_AFFINITY'] = "1"
@@ -93,9 +94,16 @@ class App(WindowPygame):
 
         # Intel(R) FPGA Emulation Platform for OpenCL(TM)
         if re.search("FPGA EMULATION", cl_plat.upper()):
-            self.is_cpu = True;
+            self.is_cpu = True
 
-        print("[CPU]" if self.is_cpu else "[GPU]", cl_name)
+        # Determine whether Integrated Graphics Processing Unit
+        iGPUs = ('Intel(R) Arc(TM) Graphics', 'gfx1036', 'gfx1037')
+        self.is_igpu = True if cl_name in iGPUs else False
+
+        if self.is_cpu:
+            print("[CPU]", cl_name)
+        else:
+            print("[GPU]", cl_name, '(integrated)' if self.is_igpu else '(discrete)')
 
         filepath = os.path.join(os.path.dirname(__file__), \
             'app', 'mandel_ocl.h').replace(' ', '\\ ')
@@ -158,7 +166,7 @@ class App(WindowPygame):
         mf_options_rw = mf.READ_WRITE | mf.USE_HOST_PTR
         mf_options_ro = mf.READ_ONLY | mf.USE_HOST_PTR
 
-        if self.is_cpu:
+        if self.is_cpu or self.is_igpu:
             self.d_temp = cl.Buffer(cl_ctx, mf_options_rw, hostbuf=self.temp)
             self.d_temp2 = cl.Buffer(cl_ctx, mf_options_rw, hostbuf=self.temp2)
             self.d_output = cl.Buffer(cl_ctx, mf_options_rw, hostbuf=self.output)
@@ -191,11 +199,11 @@ class App(WindowPygame):
             gDimY = 1
         else:
             bDimX = 8
-            bDimY = 4 if self.is_cuda else 8
+            bDimY = 4 if self.is_cuda or self.is_igpu else 8
             gDimX = self.round_up(self.width, bDimX)
             gDimY = self.round_up(self.height, bDimY)
 
-            if self.update_flag:
+            if self.update_flag and not self.is_igpu:
                 cl.enqueue_copy(cl_queue, self.d_offset, self.offset).wait()
                 cl.enqueue_copy(cl_queue, self.d_colors, self.colors).wait()
                 self.update_flag = False
@@ -210,7 +218,7 @@ class App(WindowPygame):
         cl_queue.finish()
 
         if self.num_samples == 1:
-            if not self.is_cpu:
+            if not (self.is_cpu or self.is_igpu):
                 cl.enqueue_copy(cl_queue, self.temp, self.d_temp).wait()
             self.update_window()
             return
@@ -279,7 +287,9 @@ class App(WindowPygame):
                 np.int32(self.width), np.int32(self.height) )
 
             cl_queue.finish()
-            cl.enqueue_copy(cl_queue, self.output, self.d_output).wait()
+
+            if not self.is_igpu:
+                cl.enqueue_copy(cl_queue, self.output, self.d_output).wait()
 
         self.update_window()
 
