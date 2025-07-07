@@ -97,7 +97,7 @@ class App(WindowPygame):
             self.is_cpu = True
 
         # Determine whether Integrated Graphics Processing Unit
-        iGPUs = ('Intel(R) Arc(TM) Graphics', 'gfx1036', 'gfx1037')
+        iGPUs = ('Intel(R) Arc(TM) Graphics', 'gfx1036', 'gfx1037', 'gfx1151')
         self.is_igpu = True if cl_name in iGPUs else False
 
         if self.is_cpu:
