@@ -45,6 +45,9 @@ conda config --env --add pinned_packages "blas=*=openblas"
 # Pin the Numba version. mandel_kernel.py fails with 0.61.0.
 conda config --env --add pinned_packages "numba==0.60.0"
 
+# Pin setuptools to suppress the pkg_resources deprecation warning.
+conda config --env --add pinned_packages "setuptools==79.0.1"
+
 # Continue to "Using vendor-supplied OpenCL drivers"
 ```
 
@@ -66,6 +69,9 @@ conda config --env --add pinned_packages "blas=*=openblas"
 
 # Pin the Numba version. mandel_kernel.py fails with 0.61.0.
 conda config --env --add pinned_packages "numba==0.60.0"
+
+# Pin setuptools to suppress the pkg_resources deprecation warning.
+conda config --env --add pinned_packages "setuptools==79.0.1"
 
 # Install Numba.
 conda install numba
