@@ -154,6 +154,18 @@ class App(WindowPygame):
 
         try:
             self.cl_prg = cl.Program(cl_ctx, KERNEL_SOURCE).build(options=options)
+            self.cl_mand1 = cl.Kernel(self.cl_prg, "mandelbrot1")
+            self.cl_mand2 = cl.Kernel(self.cl_prg, "mandelbrot2")
+
+            if self.is_cpu:
+                self.cl_hblur = cl.Kernel(self.cl_prg, "horizontal_gaussian_blur_cpu")
+                self.cl_vblur = cl.Kernel(self.cl_prg, "vertical_gaussian_blur_cpu")
+                self.cl_umask = cl.Kernel(self.cl_prg, "unsharp_mask_cpu")
+            else:
+                self.cl_hblur = cl.Kernel(self.cl_prg, "horizontal_gaussian_blur")
+                self.cl_vblur = cl.Kernel(self.cl_prg, "vertical_gaussian_blur")
+                self.cl_umask = cl.Kernel(self.cl_prg, "unsharp_mask")
+
         except Exception as e:
             print("[ERROR] pyopencl:", e)
             del cl_ctx
@@ -189,9 +201,6 @@ class App(WindowPygame):
 
         iters, step_x, step_y = self.update_iters( show_info=True )
 
-        cl_prg = self.cl_prg
-        cl_queue = self.cl_queue
-
         if self.is_cpu:
             bDimX = 32
             bDimY = 1
@@ -204,92 +213,71 @@ class App(WindowPygame):
             gDimY = self.round_up(self.height, bDimY)
 
             if self.update_flag and not self.is_igpu:
-                cl.enqueue_copy(cl_queue, self.d_offset, self.offset).wait()
-                cl.enqueue_copy(cl_queue, self.d_colors, self.colors).wait()
+                cl.enqueue_copy(self.cl_queue, self.d_offset, self.offset).wait()
+                cl.enqueue_copy(self.cl_queue, self.d_colors, self.colors).wait()
                 self.update_flag = False
 
-        # State 1.
-        cl_prg.mandelbrot1(
-            cl_queue, (gDimX, gDimY), (bDimX, bDimY),
+        # State 1, mandelbrot1.
+        self.cl_mand1(
+            self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
             np.float64(self.min_x), np.float64(self.min_y),
             np.float64(step_x), np.float64(step_y), self.d_temp, self.d_colors,
             np.int32(iters), np.int32(self.width), np.int32(self.height) )
 
-        cl_queue.finish()
+        self.cl_queue.finish()
 
         if self.num_samples == 1:
             if not (self.is_cpu or self.is_igpu):
-                cl.enqueue_copy(cl_queue, self.temp, self.d_temp).wait()
+                cl.enqueue_copy(self.cl_queue, self.temp, self.d_temp).wait()
             self.update_window()
             return
 
-        # State 2.
-        cl_prg.mandelbrot2(
-            cl_queue, (gDimX, gDimY), (bDimX, bDimY),
+        # State 2, mandelbrot2.
+        self.cl_mand2(
+            self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
             np.float64(self.min_x), np.float64(self.min_y),
             np.float64(step_x), np.float64(step_y), self.d_output, self.d_temp,
             self.d_colors, np.int32(iters), np.int32(self.width),
             np.int32(self.height), np.int16(self.num_samples), self.d_offset )
 
-        cl_queue.finish()
+        self.cl_queue.finish()
 
         # Image sharpening.
         if self.is_cpu:
             self.temp[:] = self.output[:]
-
             bDimX = self.chunksize_h
             gDimX = self.round_up(self.height, bDimX)
-
-            cl_prg.horizontal_gaussian_blur_cpu(
-                cl_queue, (gDimX, gDimY), (bDimX, bDimY),
-                self.d_matrix, self.d_output, self.d_temp2,
-                np.int32(self.width), np.int32(self.height) )
-
-            cl_queue.finish()
-
-            cl_prg.vertical_gaussian_blur_cpu(
-                cl_queue, (gDimX, gDimY), (bDimX, bDimY),
-                self.d_matrix, self.d_temp2, self.d_output,
-                np.int32(self.width), np.int32(self.height) )
-
-            cl_queue.finish()
-
-            cl_prg.unsharp_mask_cpu(
-                cl_queue, (gDimX, gDimY), (bDimX, bDimY),
-                self.d_temp, self.d_output,
-                np.int32(self.width), np.int32(self.height) )
-
-            cl_queue.finish()
-
         else:
-            cl.enqueue_copy(cl_queue, self.d_temp, self.d_output).wait()
-
+            cl.enqueue_copy(self.cl_queue, self.d_temp, self.d_output).wait()
             bDimX = 24
             gDimX = self.round_up(self.width, bDimX)
 
-            cl_prg.horizontal_gaussian_blur(
-                cl_queue, (gDimX, gDimY), (bDimX, bDimY),
-                self.d_matrix, self.d_output, self.d_temp2,
-                np.int32(self.width), np.int32(self.height) )
+        # Horizontal gaussian blur.
+        self.cl_hblur(
+            self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
+            self.d_matrix, self.d_output, self.d_temp2,
+            np.int32(self.width), np.int32(self.height) )
 
-            cl_queue.finish()
+        self.cl_queue.finish()
 
-            cl_prg.vertical_gaussian_blur(
-                cl_queue, (gDimX, gDimY), (bDimX, bDimY),
-                self.d_matrix, self.d_temp2, self.d_output,
-                np.int32(self.width), np.int32(self.height) )
+        # Vertical gaussian blur.
+        self.cl_vblur(
+            self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
+            self.d_matrix, self.d_temp2, self.d_output,
+            np.int32(self.width), np.int32(self.height) )
 
-            cl_queue.finish()
+        self.cl_queue.finish()
 
-            cl_prg.unsharp_mask(
-                cl_queue, (gDimX, gDimY), (bDimX, bDimY),
-                self.d_temp, self.d_output,
-                np.int32(self.width), np.int32(self.height) )
+        # Unsharp mask.
+        self.cl_umask(
+            self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
+            self.d_temp, self.d_output,
+            np.int32(self.width), np.int32(self.height) )
 
-            cl_queue.finish()
+        self.cl_queue.finish()
 
-            if not self.is_igpu:
-                cl.enqueue_copy(cl_queue, self.output, self.d_output).wait()
+        if not self.is_cpu and not self.is_igpu:
+            cl.enqueue_copy(self.cl_queue, self.output, self.d_output).wait()
 
         self.update_window()
 
@@ -302,6 +290,8 @@ class App(WindowPygame):
         if self.d_temp: self.d_temp.release()
         if self.d_temp2: self.d_temp2.release()
 
+        del self.cl_mand1, self.cl_mand2
+        del self.cl_hblur, self.cl_vblur, self.cl_umask
         del self.cl_queue, self.cl_prg, self.cl_ctx
         del self.colors, self.offset, self.output
         del self.temp, self.temp2
