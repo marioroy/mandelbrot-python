@@ -36,7 +36,14 @@ class App(WindowPygame):
     def __init__(self, opt):
         super().__init__(opt)
 
-        print("[GPU]", cuda.get_current_device().name.decode("utf-8"))
+        # Device.name is a bytes with the ctypes binding, but a str with
+        # the CUDA-Python bindings. Refer to issue 375 for more info.
+        # https://github.com/NVIDIA/numba-cuda/issues/375
+        try:
+            print("[GPU]", cuda.get_current_device().name.decode("utf-8"))
+        except AttributeError:
+            print("[GPU]", cuda.get_current_device().name.rstrip())
+
         print("[{:>3}] color scheme {}".format(self.level, self.color_scheme))
 
         # Construct memory objects.

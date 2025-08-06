@@ -78,9 +78,8 @@ conda install numba
 
 # The CUDA target built-in to Numba is deprecated, with further
 # development moved to the NVIDIA numba-cuda package.
-# Optionally, install the numba-cuda module (working 0.3.0 ~ 0.14.0).
-conda install numba-cuda=0.3.0
-conda config --env --add pinned_packages "numba-cuda==0.3.0"
+# Optionally, install the numba-cuda module.
+conda install numba-cuda
 
 # Install dependencies.
 conda install appdirs platformdirs siphash24 tbb tbb-devel
