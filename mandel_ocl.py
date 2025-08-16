@@ -208,7 +208,7 @@ class App(WindowPygame):
             gDimY = 1
         else:
             bDimX = 8
-            bDimY = 4 if self.is_cuda or self.is_igpu else 8
+            bDimY = 4 if self.is_cuda else 8
             gDimX = self.round_up(self.width, bDimX)
             gDimY = self.round_up(self.height, bDimY)
 
