@@ -93,18 +93,19 @@ class WindowPygame(Base):
 
     def print_info(self):
 
-        print("[{:>3}] fast zoom: {}, supersampling: {}x{}, performance: {}".format(
-            self.level, self.fast_zoom, self.num_samples, self.num_samples, self.perf_level))
-        print("[{:>3}] min-x, max-x : {:.16f}, {:.16f}".format(
-            self.level, self.min_x, self.max_x))
-        print("[{:>3}] min-y, max-y : {:.16f}, {:.16f}".format(
-            self.level, self.min_y, self.max_y))
-        print("[{:>3}] center x, y  : {:.16f}, {:.16f}".format(
-            self.level, self.center_x, self.center_y))
-        print("[{:>3}] zoom scale   : {}".format(
-            self.level, str(self.zoom_scale)))
-        print("[{:>3}] iterations   : {}".format(
-            self.level, int(self.iters)))
+        line1 = "[{:>3}] fast zoom: {}, supersampling: {}x{}, performance: {}, iterations: {}".format(
+            self.level, self.fast_zoom, self.num_samples, self.num_samples,
+            self.perf_level, int(self.iters))
+        line2 = "[{:>3}] min-x, max-x : {:.16f}, {:.16f}".format(
+            self.level, self.min_x, self.max_x)
+        line3 = "[{:>3}] min-y, max-y : {:.16f}, {:.16f}".format(
+            self.level, self.min_y, self.max_y)
+        line4 = "[{:>3}] center x, y  : {:.16f}, {:.16f}".format(
+            self.level, self.center_x, self.center_y)
+        line5 = "[{:>3}] zoom scale   : {}".format(
+            self.level, str(self.zoom_scale))
+
+        print("\n".join((line1, line2, line3, line4, line5)), flush=True)
 
 
     def run(self):
