@@ -18,10 +18,10 @@ class WindowPygame(Base):
     def __init__(self, opt):
 
         # set niceness value, Unix-like systems only
-        try:
-            os.nice(9);
-        except OSError:
-            pass
+        # try:
+        #     os.nice(9);
+        # except OSError:
+        #     pass
 
         self.width = opt.width
         self.height = opt.height
