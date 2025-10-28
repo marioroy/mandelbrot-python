@@ -81,22 +81,6 @@ def mandelbrot2(temp, colors, width, height, min_x, min_y, step_x, step_y, max_i
         # Inlined mandel2() for better performance.
         #######################################################
 
-        # Main cardioid bulb test.
-        zreal = math.hypot(creal - 0.25, cimag)
-        if creal < zreal - 2.0 * zreal * zreal + 0.25:
-            r = int32(r + INSIDE_COLOR2[0])
-            g = int32(g + INSIDE_COLOR2[1])
-            b = int32(b + INSIDE_COLOR2[2])
-            continue
-
-        # Period-2 bulb test to the left of the cardioid.
-        zreal = creal + 1.0
-        if zreal * zreal + cimag * cimag < 0.0625:
-            r = int32(r + INSIDE_COLOR2[0])
-            g = int32(g + INSIDE_COLOR2[1])
-            b = int32(b + INSIDE_COLOR2[2])
-            continue
-
         zreal = creal
         zimag = cimag
         outside = False

@@ -235,22 +235,6 @@ __kernel void mandelbrot2(
         creal = min_x + (((double)pos_x + offset[i]) * step_x);
         cimag = min_y + (((double)pos_y + offset[i+1]) * step_y);
 
-        // Main cardioid bulb test.
-        zreal = hypot(creal - 0.25, cimag);
-        if (creal < zreal - 2.0 * zreal * zreal + 0.25) {
-            color = INSIDE_COLOR2;
-            c.x += color.x, c.y += color.y, c.z += color.z;
-            continue;
-        }
-
-        // Period-2 bulb test to the left of the cardioid.
-        zreal = creal + 1.0;
-        if (zreal * zreal + cimag * cimag < 0.0625) {
-            color = INSIDE_COLOR2;
-            c.x += color.x, c.y += color.y, c.z += color.z;
-            continue;
-        }
-
         zreal = creal, zimag = cimag;
         outside = false;
 

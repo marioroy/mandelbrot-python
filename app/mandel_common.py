@@ -130,16 +130,6 @@ mandel1 = \
 
 def _mandel2(colors, creal, cimag, max_iters):
 
-    # Main cardioid bulb test.
-    zreal = math.hypot(creal - 0.25, cimag)
-    if creal < zreal - 2.0 * zreal * zreal + 0.25:
-        return INSIDE_COLOR2
-
-    # Period-2 bulb test to the left of the cardioid.
-    zreal = creal + 1.0
-    if zreal * zreal + cimag * cimag < 0.0625:
-        return INSIDE_COLOR2
-
     zreal = creal
     zimag = cimag
 
