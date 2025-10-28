@@ -170,7 +170,7 @@ __kernel void mandelbrot1(
     temp[mad24(width, pos_y, pos_x)] = mandel1(colors, creal, cimag, max_iters);
 }
 
-__kernel void mandelbrot2(
+__kernel void mandelbrot2_cpu(
     const double min_x, const double min_y, const double step_x,
     const double step_y, __global uchar4 *output, __global const uchar4 *temp,
     __constant const short *colors, const int max_iters, const int width,
@@ -277,5 +277,129 @@ __kernel void mandelbrot2(
     }
 
     output[pixel] = (uchar4)(c.x/aaarea, c.y/aaarea, c.z/aaarea, 0xff);
+}
+
+__kernel void mandelbrot2(
+    const double min_x, const double min_y, const double step_x,
+    const double step_y, __global uchar4 *output, __global const uchar4 *temp,
+    __global short *colr, __global short *colg, __global short *colb,
+    __constant const short *colors, const int max_iters, const int width,
+    const int height, const short aafactor, __constant const double *offset,
+    const int i )
+{
+    int pos_y, pos_x;
+
+    if (get_global_size(1) == 1) {
+        pos_y = get_global_id(0) / width;
+        pos_x = get_global_id(0) % width;
+    } else {
+        pos_y = get_global_id(1);
+        pos_x = get_global_id(0);
+    }
+
+    if (pos_y >= height || pos_x >= width) return;
+
+    int pixel = mad24(width, pos_y, pos_x);
+    uchar4 c1 = temp[pixel];
+    bool count = false;
+
+    // Skip AA for colors within tolerance.
+    if (i == 0) {
+        if (!count && pos_x > 0)
+            count = check_colors(c1, temp[pixel - 1]);
+        if (!count && pos_x + 1 < width)
+            count = check_colors(c1, temp[pixel + 1]);
+        if (!count && pos_x > 1)
+            count = check_colors(c1, temp[pixel - 2]);
+        if (!count && pos_x + 2 < width)
+            count = check_colors(c1, temp[pixel + 2]);
+
+        if (!count && pos_y > 0)
+            count = check_colors(c1, temp[pixel - width]);
+        if (!count && pos_y + 1 < height)
+            count = check_colors(c1, temp[pixel + width]);
+        if (!count && pos_y > 1)
+            count = check_colors(c1, temp[pixel - width - width]);
+        if (!count && pos_y + 2 < height)
+            count = check_colors(c1, temp[pixel + width + width]);
+
+        if (!count) {
+            colr[pixel] = colg[pixel] = colb[pixel] = (short)-1;
+            output[pixel] = c1;
+            return;
+        }
+
+        colr[pixel] = (short)c1.x;
+        colg[pixel] = (short)c1.y;
+        colb[pixel] = (short)c1.z;
+    }
+    else if (colr[pixel] == (short)-1)
+        return;
+
+    // Compute AA.
+    const int aaarea = aafactor * aafactor;
+    const int aaarea2 = (aaarea - 1) * 2;
+    double creal, cimag;
+    int4 c = (int4)(c1.x, c1.y, c1.z, 0xff);
+    uchar4 color;
+
+    double zreal, zimag;
+    udouble_t zreal_sqr, zimag_sqr;
+  #if defined(MIXED_PREC2)
+    ufloat_t a, b;
+  #endif
+    int n;
+    bool outside;
+
+    creal = min_x + (((double)pos_x + offset[i]) * step_x);
+    cimag = min_y + (((double)pos_y + offset[i+1]) * step_y);
+
+    zreal = creal, zimag = cimag;
+    outside = false;
+
+    for (n = 0; n < max_iters; n++) {
+        zreal_sqr.d = zreal * zreal;
+        zimag_sqr.d = zimag * zimag;
+
+      #if defined(MIXED_PREC2)
+        a.i = (zreal_sqr.y & 0xc0000000) | ((zreal_sqr.y & 0x7ffffff) << 3);
+        b.i = (zimag_sqr.y & 0xc0000000) | ((zimag_sqr.y & 0x7ffffff) << 3);
+        if (a.f + b.f > ESCAPE_RADIUS_2) {
+      #else
+        if (zreal_sqr.d + zimag_sqr.d > ESCAPE_RADIUS_2) {
+      #endif
+            outside = true;
+            break;
+        }
+
+        zimag = _fma(2.0 * zreal, zimag, cimag);
+        zreal = zreal_sqr.d - zimag_sqr.d + creal;
+    }
+
+    if (outside) {
+        // Compute 2 more iterations to decrease the error term.
+        // http://linas.org/art-gallery/escape/escape.html
+        for (int i = 0; i < 2; i++) {
+            zimag = _fma(2.0 * zreal, zimag, cimag);
+            zreal = zreal_sqr.d - zimag_sqr.d + creal;
+            zreal_sqr.d = zreal * zreal;
+            zimag_sqr.d = zimag * zimag;
+        }
+        color = get_color(colors, zreal_sqr.d, zimag_sqr.d, n + 3);
+    }
+    else
+        color = INSIDE_COLOR1;
+
+    colr[pixel] += (short)color.x;
+    colg[pixel] += (short)color.y;
+    colb[pixel] += (short)color.z;
+
+    if (i == aaarea2 - 2) {
+        output[pixel] = (uchar4)(
+            colr[pixel] / aaarea,
+            colg[pixel] / aaarea,
+            colb[pixel] / aaarea,
+            0xff);
+    }
 }
 

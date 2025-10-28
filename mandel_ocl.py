@@ -4,7 +4,7 @@
 Explore the Mandelbrot Set on the CPU or GPU using PyOpenCL.
 """
 
-import io, re, os, platform, sys
+import io, re, os, platform, sys, time
 import numpy as np
 
 from app.option import OPT
@@ -133,6 +133,11 @@ class App(WindowPygame):
         self.temp = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_uint32)
         self.temp2 = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_uint32)
 
+        if not self.is_cpu:
+            self.colr = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_int16)
+            self.colg = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_int16)
+            self.colb = np.empty((h, w), dtype=np.ctypeslib.ctypes.c_int16)
+
         # Set chunksize for the CPU.
         blur_num_threads = max(1, min(NUM_THREADS, self.divide_up(h, 20)))
         self.chunksize_h = self.divide_up(h, blur_num_threads)
@@ -155,13 +160,14 @@ class App(WindowPygame):
         try:
             self.cl_prg = cl.Program(cl_ctx, KERNEL_SOURCE).build(options=options)
             self.cl_mand1 = cl.Kernel(self.cl_prg, "mandelbrot1")
-            self.cl_mand2 = cl.Kernel(self.cl_prg, "mandelbrot2")
 
             if self.is_cpu:
+                self.cl_mand2 = cl.Kernel(self.cl_prg, "mandelbrot2_cpu")
                 self.cl_hblur = cl.Kernel(self.cl_prg, "horizontal_gaussian_blur_cpu")
                 self.cl_vblur = cl.Kernel(self.cl_prg, "vertical_gaussian_blur_cpu")
                 self.cl_umask = cl.Kernel(self.cl_prg, "unsharp_mask_cpu")
             else:
+                self.cl_mand2 = cl.Kernel(self.cl_prg, "mandelbrot2")
                 self.cl_hblur = cl.Kernel(self.cl_prg, "horizontal_gaussian_blur")
                 self.cl_vblur = cl.Kernel(self.cl_prg, "vertical_gaussian_blur")
                 self.cl_umask = cl.Kernel(self.cl_prg, "unsharp_mask")
@@ -185,6 +191,11 @@ class App(WindowPygame):
             self.d_offset = cl.Buffer(cl_ctx, mf_options_ro, hostbuf=self.offset)
             self.d_matrix = cl.Buffer(cl_ctx, mf_options_ro, hostbuf=self.gaussian_kernel)
             self.d_colors = cl.Buffer(cl_ctx, mf_options_ro, hostbuf=self.colors)
+
+            if self.is_igpu:
+                self.d_colr = cl.Buffer(cl_ctx, mf_options_rw, hostbuf=self.colr)
+                self.d_colg = cl.Buffer(cl_ctx, mf_options_rw, hostbuf=self.colg)
+                self.d_colb = cl.Buffer(cl_ctx, mf_options_rw, hostbuf=self.colb)
         else:
             self.d_temp = cl.Buffer(cl_ctx, mf.READ_WRITE, self.temp.nbytes)
             self.d_temp2 = cl.Buffer(cl_ctx, mf.READ_WRITE, self.temp2.nbytes)
@@ -192,6 +203,10 @@ class App(WindowPygame):
             self.d_offset = cl.Buffer(cl_ctx, mf.READ_ONLY, self.offset.nbytes)
             self.d_matrix = cl.Buffer(cl_ctx, mf.READ_ONLY, self.gaussian_kernel.nbytes)
             self.d_colors = cl.Buffer(cl_ctx, mf.READ_ONLY, self.colors.nbytes)
+            self.d_colr = cl.Buffer(cl_ctx, mf.READ_WRITE, self.colr.nbytes)
+            self.d_colg = cl.Buffer(cl_ctx, mf.READ_WRITE, self.colg.nbytes)
+            self.d_colb = cl.Buffer(cl_ctx, mf.READ_WRITE, self.colb.nbytes)
+
             cl.enqueue_copy(self.cl_queue, self.d_matrix, self.gaussian_kernel).wait()
 
         # Instantiate the Window interface.
@@ -229,18 +244,36 @@ class App(WindowPygame):
         if self.num_samples == 1:
             if not (self.is_cpu or self.is_igpu):
                 cl.enqueue_copy(self.cl_queue, self.temp, self.d_temp).wait()
+
             self.update_window()
             return
 
         # State 2, mandelbrot2.
-        self.cl_mand2(
-            self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
-            np.float64(self.min_x), np.float64(self.min_y),
-            np.float64(step_x), np.float64(step_y), self.d_output, self.d_temp,
-            self.d_colors, np.int32(iters), np.int32(self.width),
-            np.int32(self.height), np.int16(self.num_samples), self.d_offset )
+        if self.is_cpu:
+            self.cl_mand2(
+                self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
+                np.float64(self.min_x), np.float64(self.min_y),
+                np.float64(step_x), np.float64(step_y), self.d_output, self.d_temp,
+                self.d_colors, np.int32(iters), np.int32(self.width),
+                np.int32(self.height), np.int16(self.num_samples), self.d_offset )
 
-        self.cl_queue.finish()
+            self.cl_queue.finish()
+        else:
+            aaarea = self.num_samples * self.num_samples
+            aaarea2 = (aaarea - 1) * 2
+
+            for i in range(0, aaarea2, 2):
+                self.cl_mand2(
+                    self.cl_queue, (gDimX, gDimY), (bDimX, bDimY),
+                    np.float64(self.min_x), np.float64(self.min_y),
+                    np.float64(step_x), np.float64(step_y), self.d_output,
+                    self.d_temp, self.d_colr, self.d_colg, self.d_colb,
+                    self.d_colors, np.int32(iters), np.int32(self.width),
+                    np.int32(self.height), np.int16(self.num_samples),
+                    self.d_offset, np.int32(i) )
+
+                self.cl_queue.finish()
+                time.sleep(0.00002) # yield
 
         # Image sharpening.
         if self.is_cpu:
@@ -295,6 +328,12 @@ class App(WindowPygame):
         del self.cl_queue, self.cl_prg, self.cl_ctx
         del self.colors, self.offset, self.output
         del self.temp, self.temp2
+
+        if not self.is_cpu:
+            if self.d_colr: self.d_colr.release()
+            if self.d_colg: self.d_colg.release()
+            if self.d_colb: self.d_colb.release()
+            del self.colr, self.colg, self.colb
 
 
 if __name__ == '__main__':
