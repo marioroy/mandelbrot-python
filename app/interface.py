@@ -8,6 +8,22 @@ __all__ = ["WindowPygame"]
 import math, os, sys, time
 os.environ['SDL_VIDEO_ALLOW_SCREENSAVER'] = '1';
 
+# Check for non-macOS Unix platform (Linux, FreeBSD, OpenBSD, NetBSD, etc.)
+is_unix = os.name == 'posix' and sys.platform != 'darwin'
+
+if is_unix:
+    # Check both SDL2 and SDL3 env variables to ensure overrides apply
+    sdl2_drv = os.getenv('SDL_VIDEODRIVER', '')
+    sdl3_drv = os.getenv('SDL_VIDEO_DRIVER', '')
+
+    # Force SDL to use the X11 video driver if no custom driver is set.
+    # WORKAROUND: Prevents an issue on Wayland where an active Pygame window
+    # causes unclicked Chromium windows (like Chrome or Discord) to experience
+    # choppy/unsmooth mouse-wheel scrolling when you hover the mouse over them.
+    if sdl2_drv == '' and sdl3_drv == '':
+        os.environ['SDL_VIDEODRIVER'] = 'x11'
+        os.environ['SDL_VIDEO_DRIVER'] = 'x11'
+
 import numpy as np
 import pygame as pg
 
@@ -90,6 +106,9 @@ class WindowPygame(Base):
         self.window = pg.display.set_mode((self.width, self.height), \
             flags=pg.DOUBLEBUF|pg.SHOWN)
 
+        # Block mouse movements and wheel events.
+        pg.event.set_blocked([pg.MOUSEMOTION, pg.MOUSEWHEEL])
+
 
     def print_info(self):
 
@@ -112,24 +131,30 @@ class WindowPygame(Base):
 
         self.display()
 
-        # Wait for an event so minimum CPU utilization when idled.
         while True:
-            e = pg.event.wait()
-            if e.type == pg.KEYDOWN:
-                if e.key == pg.K_q or self.__on_key_press(e.key):
-                    break
-                pg.event.clear()
-                sys.stdout.flush()
-            elif e.type == pg.MOUSEBUTTONDOWN:
-                x, y = pg.mouse.get_pos()
-                self.__on_mouse_press(x, y, e.button)
-                pg.event.clear()
-            elif e.type == pg.VIDEOEXPOSE:
-                self.update_window(videoexpose=True)
-            elif e.type == pg.QUIT:
-                break
+            # This line keeps the window alive to the OS
+            pg.event.pump()
 
-        pg.quit()
+            # Process events
+            for e in pg.event.get():
+                if e.type == pg.KEYDOWN:
+                    if e.key == pg.K_q or self.__on_key_press(e.key):
+                        pg.quit()
+                        return
+                    pg.event.clear()
+                    sys.stdout.flush()
+                elif e.type == pg.MOUSEBUTTONDOWN:
+                    x, y = pg.mouse.get_pos()
+                    self.__on_mouse_press(x, y, e.button)
+                    pg.event.clear()
+                elif e.type == pg.VIDEOEXPOSE:
+                    self.update_window(videoexpose=True)
+                elif e.type == pg.QUIT:
+                    pg.quit()
+                    return
+
+            # This line keeps the CPU idle when there are no events
+            time.sleep(0.01)
 
 
     def update_iters(self, show_info=False):
